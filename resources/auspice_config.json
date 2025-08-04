@@ -11,14 +11,14 @@
         "default": "__root__",
         "search": [
           {
-            "name": "AY421767",
-            "displayName": "AY421767.1 (strain Kowalik)",
-            "description": "Commonly used reference strain.",
+            "name": "Static inferred root",
+            "displayName": "Static inferred root",
+            "description": "Static inferred root from Nextclade.",
             "criteria": [
               {
                 "node": [
                   {
-                    "name": ["AY421767"]
+                    "name": ["InferredRoot"]
                   }
                 ]
               }

@@ -22,6 +22,7 @@ SEQUENCES =             "data/sequences.fasta"
 METADATA =              "data/metadata.tsv"
 CLADES =                "resources/clades.tsv"
 ACCESSION_STRAIN =      "resources/accession_strain.tsv"
+STATIC_INFERRED_ROOT =  "resources/static_inferred_root.fasta"
 
 FETCH_SEQUENCES = True
 
@@ -52,6 +53,20 @@ if FETCH_SEQUENCES == True:
             cp -u {params.meta} {output.metadata}
             """
 
+rule add_static_inferred_root:
+    """
+    Add the static inferred root sequence to the filtered sequences
+    """
+    input:
+        sequences = SEQUENCES,
+        static_inferred_root = STATIC_INFERRED_ROOT,
+    output:
+        "results/sequences_and_static-root.fasta",
+    shell:
+        """
+        cat {input.static_inferred_root} {input.sequences} >> {output}
+        
+        """
 
 rule add_reference_to_include:
     """
@@ -72,15 +87,16 @@ rule curate:
         Cleaning up metadata with augur merge & augur curate
         """
     input:
-        meta=METADATA,  # Path to input metadata file
-        strains = ACCESSION_STRAIN  # Strain - accession lookup table
+        meta = METADATA,  # Path to input metadata file
+        strains = ACCESSION_STRAIN,  # Strain - accession lookup table
+        infroot_meta = "resources/static_inferred_root_metadata.tsv",  # Metadata for the static inferred root
     params:
         strain_id_field = ID_FIELD,
     output:
         metadata = "results/metadata.tsv",  # Final output file for publications metadata
     shell:
         """
-        augur merge --metadata metadata={input.meta} strains={input.strains}\
+        augur merge --metadata metadata={input.meta} strains={input.strains} inferred_root_metadata={input.infroot_meta} \
             --metadata-id-columns {params.strain_id_field} \
             --output-metadata metadata.tmp
         augur curate normalize-strings \
@@ -98,7 +114,7 @@ rule index_sequences:
         Creating an index of sequence composition for filtering
         """
     input:
-        sequences = SEQUENCES,
+        sequences = rules.add_static_inferred_root.output,
     output:
         sequence_index = "results/sequence_index.tsv"
     shell:
@@ -114,7 +130,7 @@ rule filter:
     Only take sequences longer than {MIN_LENGTH}
     """
     input:
-        sequences = SEQUENCES,
+        sequences = rules.add_static_inferred_root.output,
         sequence_index = rules.index_sequences.output.sequence_index,
         metadata = rules.curate.output.metadata,
         include = rules.add_reference_to_include.output,
@@ -371,7 +387,7 @@ rule export:
 
 rule subsample_example_sequences:
     input:
-        all_sequences = SEQUENCES,
+        all_sequences = rules.add_static_inferred_root.output,
         metadata = rules.curate.output.metadata,
     output:
         example_sequences = "results/example_sequences.fasta",
