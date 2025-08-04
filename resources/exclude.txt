@@ -1,0 +1,11 @@
+AB119640
+MF678312
+
+# Exluded in the refine step from the build
+PQ612456
+PQ612457
+MH118041
+PV693695
+
+# Excluded because is the reference --> Can't be excluded if you want to get the mutations in reference to it (needs to be at the tree)
+# AY421767
