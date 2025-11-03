@@ -2,7 +2,7 @@
 
 | Key                  | Value                                                                 |
 |----------------------|-----------------------------------------------------------------------|
-| authors              | [Alejandra González-Sánchez](...),[Nadia Neuner-Jehle](https://www.swisstph.ch/en/staff/profile/people/nadia-neuner-jehle), [Emma B. Hodcroft](http://emmahodcroft.com/), [ENPEN](https://escv.eu/european-non-polio-enterovirus-network-enpen/)     |
+| authors              | [Alejandra González-Sánchez](https://github.com/alejandra-gonzalezsanchez),[Nadia Neuner-Jehle](https://www.swisstph.ch/en/staff/profile/people/nadia-neuner-jehle), [Emma B. Hodcroft](http://emmahodcroft.com/), [ENPEN](https://escv.eu/european-non-polio-enterovirus-network-enpen/)     |
 | name                 | Coxsackievirus A10                                                     |
 | reference            | [AY421767.1](https://www.ncbi.nlm.nih.gov/nuccore/AY421767)               |
 | workflow             | https://github.com/hodcroftlab/nextclade_a10                          |
