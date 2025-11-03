@@ -1,6 +1,6 @@
 {
   "title": "Coxsackievirus A10 - Nextclade dataset tree",
-  "build_url": "https://github.com/hodcroftlab/...",
+  "build_url": "https://github.com/hodcroftlab/nextclade_a10",
   "maintainers": [
     { "name": "Alejandra González-Sánchez" },
     { "name": "Emma Hodcroft", "url": "http://emmahodcroft.com/" }
@@ -9,16 +9,22 @@
     "nextclade": {
       "ref_nodes": {
         "default": "__root__",
+        "builtins": {
+          "__root__": {
+            "displayName": "Reference [AY421767.1]",
+            "description": "Coxsackievirus A10, strain Kowalik"
+          }
+        },
         "search": [
           {
-            "name": "Static inferred root",
-            "displayName": "Static inferred root",
-            "description": "Static inferred root from Nextclade.",
+            "name": "InferredAncestor",
+            "displayName": "Static Inferred Ancestor",
+            "description": "Precomputed ancestral sequence (static)",
             "criteria": [
               {
                 "node": [
                   {
-                    "name": ["InferredRoot"]
+                    "name": ["ancestral_sequence"]
                   }
                 ]
               }
@@ -27,7 +33,7 @@
           {
             "name": "Inferred root",
             "displayName": "Tree root",
-            "description": "Inferred root from ancestral traits",
+            "description": "Inferred ancestral root (regenerated on each run)",
             "criteria": [
               {
                 "node": [
@@ -49,8 +55,8 @@
       "key": "clade_membership"
     },
     {
-      "title": "Date",
-      "type": "continuous",
+      "title": "Collection Date",
+      "type": "categorical",
       "key": "date"
     },
     {

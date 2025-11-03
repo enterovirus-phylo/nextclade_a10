@@ -1,4 +1,5 @@
 {
+  "$schema": "https://raw.githubusercontent.com/nextstrain/nextclade/refs/heads/release/packages/nextclade-schemas/input-pathogen-json.schema.json",
   "schemaVersion": "3.0.0",
   "files": {
     "reference": "reference.fasta",
@@ -29,6 +30,10 @@
         "cli": "3.0.0-alpha.0",
         "web": "3.0.0-alpha.0"
     },
+  "mutLabels": {
+    "nucMutLabelMap": {
+      }
+    },    
   "qc": {
     "frameShifts": {
       "enabled": true,
@@ -54,6 +59,11 @@
     "stopCodons": {
       "enabled": true,
       "scoreWeight": 40
+    },
+    "recombinants": {
+      "enabled": true,
+      "mutationsThreshold": 140,
+      "scoreWeight": 50
     }
     },
   "cdsOrderPreference":["VP4", "VP2", "VP3", "VP1", "2A", "2B", "2C", "3A", "3B", "3C", "3D"]
