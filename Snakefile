@@ -6,25 +6,32 @@ ALLOWED_DIVERGENCE =    "1800" # was
 MIN_DATE =              "1950-01-01"
 MIN_LENGTH =            "6000" # was 6000 for whole genome build on Nextstrain
 MAX_SEQS =              "1000" #TODO: set to 10000 for testing
-ROOTING =               "mid_point"  # alternative root using outgroup, e.g. the reference "AY426531.1"
+ROOTING =               "ancestral_sequence"  # alternative root using outgroup, e.g. the reference "AY426531.1"
 ID_FIELD=               "accession" # either accession or strain, used for meta-id-column in augur
 
 # Set the paths
-GFF_PATH =              "dataset/genome_annotation.gff3"
-PATHOGEN_JSON =         "dataset/pathogen.json"
-GENBANK_PATH =          "resources/reference.gbk"
-REFERENCE_PATH =        "dataset/reference.fasta"
-README_PATH =           "dataset/README.md"
-CHANGELOG_PATH =        "dataset/CHANGELOG.md"
-AUSPICE_CONFIG =        "resources/auspice_config.json"
-EXCLUDE =               "resources/exclude.txt"
 SEQUENCES =             "data/sequences.fasta"
 METADATA =              "data/metadata.tsv"
+
+GFF_PATH =              "dataset/genome_annotation.gff3" 
+PATHOGEN_JSON =         "dataset/pathogen.json"
+README_PATH =           "dataset/README.md"
+CHANGELOG_PATH =        "dataset/CHANGELOG.md"
+REFERENCE_PATH =        "dataset/reference.fasta"
+
+GENBANK_PATH =          "resources/reference.gbk"
+AUSPICE_CONFIG =        "resources/auspice_config.json"
+EXCLUDE =               "resources/exclude.txt"
 CLADES =                "resources/clades.tsv"
 ACCESSION_STRAIN =      "resources/accession_strain.tsv"
-STATIC_INFERRED_ROOT =  "resources/static_inferred_root.fasta"
+INCLUDE_EXAMPLES =      "resources/include_examples.txt"
+COLORS =                "resources/colors.tsv"
+COLORS_SCHEMES =        "resources/color_schemes.tsv"
+INFERRED_ANCESTOR =     "resources/inferred-root.fasta"
 
 FETCH_SEQUENCES = True
+STATIC_ANCESTRAL_INFERRENCE = True
+include: "scripts/workflow_messages.snkm"
 
 rule all:
     input:
@@ -32,7 +39,7 @@ rule all:
         augur_jsons = "test_out/",
         data = "dataset.zip",
         seqs = "results/example_sequences.fasta",
-
+        **({"root": INFERRED_ANCESTOR} if STATIC_ANCESTRAL_INFERRENCE else {})
 
 if FETCH_SEQUENCES == True:
     rule fetch:
@@ -41,45 +48,12 @@ if FETCH_SEQUENCES == True:
         output:
             sequences=SEQUENCES,
             metadata=METADATA
-        params:
-            seq=f"ingest/{SEQUENCES}",
-            meta=f"ingest/{METADATA}"
         shell:
             """
             cd {input.dir} 
             snakemake --cores 9 all
             cd ../
-            cp -u {params.seq} {output.sequences}
-            cp -u {params.meta} {output.metadata}
             """
-
-rule add_static_inferred_root:
-    """
-    Add the static inferred root sequence to the filtered sequences
-    """
-    input:
-        sequences = SEQUENCES,
-        static_inferred_root = STATIC_INFERRED_ROOT,
-    output:
-        "results/sequences_and_static-root.fasta",
-    shell:
-        """
-        cat {input.static_inferred_root} {input.sequences} >> {output}
-        
-        """
-
-rule add_reference_to_include:
-    """
-    Create an include file for augur filter
-    """
-    input:
-        include = "resources/include.txt",
-    output:
-        "results/include.txt",
-    shell:
-        """
-        echo "{REFERENCE_ACCESSION}" >> results/include.txt
-        """
 
 rule curate:
     message:
@@ -88,15 +62,14 @@ rule curate:
         """
     input:
         meta = METADATA,  # Path to input metadata file
-        strains = ACCESSION_STRAIN,  # Strain - accession lookup table
-        infroot_meta = "resources/static_inferred_root_metadata.tsv",  # Metadata for the static inferred root
+        strains = ACCESSION_STRAIN  # Strain - accession lookup table
     params:
         strain_id_field = ID_FIELD,
     output:
         metadata = "results/metadata.tsv",  # Final output file for publications metadata
     shell:
         """
-        augur merge --metadata metadata={input.meta} strains={input.strains} inferred_root_metadata={input.infroot_meta} \
+        augur merge --metadata metadata={input.meta} strains={input.strains}\
             --metadata-id-columns {params.strain_id_field} \
             --output-metadata metadata.tmp
         augur curate normalize-strings \
@@ -108,13 +81,72 @@ rule curate:
         """
 
 
+rule add_reference_to_include:
+    """
+    Create an include file for augur filter
+    """
+    input:
+        "resources/include.txt",
+    output:
+        "results/include.txt",
+    shell:
+        """
+        cat {input} >> {output}
+        echo "{REFERENCE_ACCESSION}" >> {output}
+        echo ancestral_sequence >> {output}
+        """
+
+if STATIC_ANCESTRAL_INFERRENCE == True:
+    rule static_inferrence:
+        message:
+            """
+            Running "inferred-root" snakefile for inference of the ancestral root. 
+            This reference will be included in the Nextclade reference tree.
+            WARNING: This will overwrite your sequence & meta file!
+            """
+        input:
+            dir = "inferred-root",
+            dataset_path = "dataset",
+            meta = rules.curate.output.metadata,
+            seq = SEQUENCES,
+            meta_ancestral = "resources/static_inferred_metadata.tsv", #TODO: create dummy metadata for ancestral sequence
+            include = "results/include.txt"
+        params:
+            strain_id_field = ID_FIELD,
+        threads: workflow.cores
+        output:
+            inref = INFERRED_ANCESTOR,
+            seq = "results/sequences_with_ancestral.fasta",
+            meta = "results/metadata_with_ancestral.tsv",
+        shell:
+            """
+            # Run the inferred-root snakefile
+            echo "Running inferred-root workflow..."
+            cd {input.dir} 
+            snakemake --cores {threads} all
+            cd ../
+
+            # Combine sequences (fixed the typo)
+            echo "Combining sequences with ancestral root..."
+            cat {input.seq} {output.inref} > {output.seq}
+
+            # Merge metadata
+            echo "Merging metadata..."
+            augur merge \
+                --metadata metadata={input.meta} ancestral={input.meta_ancestral} \
+                --metadata-id-columns {params.strain_id_field} \
+                --output-metadata {output.meta}
+            
+            echo "Static ancestral inference completed successfully!"
+            """
+
 rule index_sequences:
     message:
         """
         Creating an index of sequence composition for filtering
         """
     input:
-        sequences = rules.add_static_inferred_root.output,
+        sequences = "results/sequences_with_ancestral.fasta" if STATIC_ANCESTRAL_INFERRENCE else SEQUENCES,
     output:
         sequence_index = "results/sequence_index.tsv"
     shell:
@@ -130,17 +162,17 @@ rule filter:
     Only take sequences longer than {MIN_LENGTH}
     """
     input:
-        sequences = rules.add_static_inferred_root.output,
+        sequences = "results/sequences_with_ancestral.fasta" if STATIC_ANCESTRAL_INFERRENCE else SEQUENCES,
         sequence_index = rules.index_sequences.output.sequence_index,
-        metadata = rules.curate.output.metadata,
+        metadata = "results/metadata_with_ancestral.tsv" if STATIC_ANCESTRAL_INFERRENCE else rules.curate.output.metadata,
         include = rules.add_reference_to_include.output,
     output:
         filtered_sequences = "results/filtered_sequences_raw.fasta",
         filtered_metadata = "results/filtered_metadata_raw.tsv",
     params: 
-        min_date = "" if MIN_DATE == "" else "--min-date " + MIN_DATE,
-        min_length = "" if MIN_LENGTH == "" else "--min-length " + MIN_LENGTH,
-        max_seqs = MAX_SEQS,
+        min_date="" if MIN_DATE == "" else "--min-date " + MIN_DATE,
+        min_length="" if MIN_LENGTH == "" else "--min-length " + MIN_LENGTH,
+        max_seqs=MAX_SEQS,
         categories = "country year", #TODO: add subsampling per category?
         strain_id_field = ID_FIELD,
     shell:
@@ -153,6 +185,7 @@ rule filter:
             {params.min_length} \
             {params.min_date} \
             --include {input.include} \
+            --group-by {params.categories} \
             --subsample-max-sequences {params.max_seqs} \
             --output-sequences {output.filtered_sequences} \
             --output-metadata {output.filtered_metadata}
@@ -243,9 +276,10 @@ rule exclude:
     input:
         sequences = rules.align.output.alignment,
         sequence_index = rules.index_sequences.output.sequence_index,
-        metadata = rules.curate.output.metadata,
+        metadata = "results/metadata_with_ancestral.tsv" if STATIC_ANCESTRAL_INFERRENCE else rules.curate.output.metadata,
         exclude = EXCLUDE,
         outliers = rules.get_outliers.output.outliers,
+        examples = INCLUDE_EXAMPLES,
     params:
         strain_id_field = ID_FIELD,
     output:
@@ -259,7 +293,7 @@ rule exclude:
             --sequence-index {input.sequence_index} \
             --metadata {input.metadata} \
             --metadata-id-columns {params.strain_id_field} \
-            --exclude {input.exclude} {input.outliers} \
+            --exclude {input.exclude} {input.outliers} {input.examples} \
             --output-sequences {output.filtered_sequences} \
             --output-metadata {output.filtered_metadata} \
             --output-strains {output.strains}
@@ -283,7 +317,6 @@ rule tree:
             --nthreads {threads}\
             --output {output.tree} \
         """
-
 
 rule refine:
     input:
@@ -312,7 +345,7 @@ rule ancestral:
         annotation=GENBANK_PATH,
     output:
         node_data="results/muts.json",
-        sequences="results/ancestral-sequences.fasta"
+        ancestral_sequences="results/ancestral_sequences.fasta",
     params:
         translation_template=r"results/translations/cds_%GENE.translation.fasta",
         output_translation_template=r"results/translations/cds_%GENE.ancestral.fasta",
@@ -327,23 +360,8 @@ rule ancestral:
             --genes {params.genes} \
             --translations {params.translation_template} \
             --output-node-data {output.node_data} \
-            --output-sequences {output.sequences} \
-            --output-translations {params.output_translation_template}
-        """
-
-
-rule dummy_clades:
-    """
-    Nextclade requires clade membership to be specified for each node
-    in the tree. This rule creates a dummy clade membership for each node
-    """
-    input:
-        rules.refine.output.node_data,
-    output:
-        "results/dummy_clades.json",
-    shell:
-        """
-        jq '.nodes |= map_values({{"clade_membership": "dummy"}})' {input} > {output}
+            --output-translations {params.output_translation_template}\
+            --output-sequences {output.ancestral_sequences}
         """
 
 rule clades:
@@ -352,25 +370,78 @@ rule clades:
         mutations = rules.ancestral.output.node_data,
         clades = CLADES
     output:
-        "results/clades.json"
+        json = "results/clades.json",
     shell:
         """
         augur clades --tree {input.tree} \
             --mutations {input.mutations} \
             --clades {input.clades} \
-            --output-node-data {output}
+            --output-node-data {output.json}
         """
 
-rule export:
+
+rule get_dates:
+    """Create ordering for color assignment"""
+    input:
+        metadata = rules.exclude.output.filtered_metadata
+    output:
+        ordering = "results/color_ordering.tsv"
+    run:
+        import pandas as pd
+        column = "date"
+        meta = pd.read_csv(input.metadata, delimiter='\t')
+
+        if column not in meta.columns:
+            print(f"The column '{column}' does not exist in the file.")
+            sys.exit(1)
+
+        deflist = meta[column].dropna().tolist()
+        # Store unique values (ordered)
+        deflist = sorted(set(deflist))
+        if "XXXX-XX-XX" in deflist:
+            deflist.remove("XXXX-XX-XX")
+
+        result_df = pd.DataFrame({
+            'column': ['date'] * len(deflist),
+            'value': deflist
+        })
+
+        result_df.to_csv(output.ordering, sep='\t', index=False, header=False)
+        
+
+rule colors:
+    """Assign colors based on ordering"""
+    input:
+        ordering=rules.get_dates.output.ordering,
+        color_schemes=COLORS_SCHEMES,
+        colors=COLORS,
+    output:
+        colors="results/colors_dates.tsv",
+        final_colors="results/final_colors.tsv"
+    shell:
+        """
+        python3 scripts/assign-colors.py \
+            --ordering {input.ordering} \
+            --color-schemes {input.color_schemes} \
+            --output {output.colors}
+
+        echo -e '\ndate\tXXXX-XX-XX\t#a6acaf' >> {output.colors}
+
+        cat {output.colors} {input.colors} >> {output.final_colors}
+        """
+
+rule export: 
     input:
         tree = rules.refine.output.tree,
         metadata = rules.exclude.output.filtered_metadata,
         mutations = rules.ancestral.output.node_data,
         branch_lengths = rules.refine.output.node_data,
-        clades = rules.clades.output, # dummy_clades if not set yet
+        clades = rules.clades.output.json, # dummy_clades if not set yet
         auspice_config = AUSPICE_CONFIG,
+        colors = rules.colors.output.final_colors
     params:
         strain_id_field = ID_FIELD,
+        fields="region country date",
     output:
         auspice = "results/auspice.json",
     shell:
@@ -380,6 +451,9 @@ rule export:
             --metadata {input.metadata} \
             --metadata-id-columns {params.strain_id_field} \
             --auspice-config {input.auspice_config} \
+            --color-by-metadata {params.fields} \
+            --colors {input.colors} \
+            --include-root-sequence \
             --node-data {input.mutations} {input.branch_lengths} {input.clades} \
             --output {output.auspice}
         """
@@ -387,7 +461,7 @@ rule export:
 
 rule subsample_example_sequences:
     input:
-        all_sequences = rules.add_static_inferred_root.output,
+        all_sequences = SEQUENCES,
         metadata = rules.curate.output.metadata,
     output:
         example_sequences = "results/example_sequences.fasta",
@@ -399,7 +473,7 @@ rule subsample_example_sequences:
             --sequences {input.all_sequences} \
             --metadata {input.metadata} \
             --metadata-id-columns {params.strain_id_field} \
-            --min-date 2020 --group-by year --subsample-max-sequences 50  \
+            --min-date 2015 --group-by year --subsample-max-sequences 30  \
             --exclude-ambiguous-dates-by year \
             --probabilistic-sampling \
             --output-sequences {output.example_sequences}
@@ -450,13 +524,29 @@ rule test:
             {input.sequences}
         """
 
+rule mutLabels:
+    input: 
+        json = PATHOGEN_JSON,
+        tsv = "test_out/nextclade.tsv",
+    params:
+        "results/virus_properties.json"
+    output:
+        "out-dataset/pathogen.json"
+    shell:
+        """
+        python3 scripts/generate_virus_properties.py
+        jq --slurpfile v {params} \
+           '.mutLabels.nucMutLabelMap = $v[0].nucMutLabelMap |
+            .mutLabels.nucMutLabelMapReverse = $v[0].nucMutLabelMapReverse' \
+           {input.json} > {output}
+        zip -rj dataset.zip  out-dataset/*
+        """
+
 rule clean:
     shell:
         """
-        rm -r results
-        rm -r out-dataset/
-        rm -r test_out/
-        rm -r dataset.zip
-        # rm ingest/data/*
-        # rm data/*
+        rm ingest/data/*.* data/*
+        rm -r results/* out-dataset test_out dataset.zip tmp
+        rm resources/inferred-root.fasta inferred-root/resources/inferred-root.fasta
+        rm -r inferred-root/results/*
         """
