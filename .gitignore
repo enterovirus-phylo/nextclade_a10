@@ -1,21 +1,35 @@
 ## add your work email
 .env
 
-# will be downloaded with ingest
-data/metadata.tsv
-data/sequences.fasta
-data
-
 # log files & cache
 .snakemake
 logs
 scripts/__pycache__/
 *.code-workspace
 benchmarks
-tmp
 
-# results
-results
-out-dataset
+ingest/.snakemake/
+ingest/benchmarks/
+ingest/logs/
+
+data/*
+auspice/
+
+*errors.csv
+
+*/results/
+*/temp/
+ingest/data/*
+!ingest/data/references/
+ingest/data/references/nextclade.tsv
+
+*.code-workspace
+
+ingest/vendored
+tmp/
+results/*
+test_out/*
+out-dataset/*
 dataset.zip
-test_out
+
+config.yaml
