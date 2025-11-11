@@ -463,6 +463,7 @@ rule subsample_example_sequences:
     input:
         all_sequences = SEQUENCES,
         metadata = rules.curate.output.metadata,
+        examples = INCLUDE_EXAMPLES,
     output:
         example_sequences = "results/example_sequences.fasta",
     params:
@@ -476,6 +477,7 @@ rule subsample_example_sequences:
             --min-date 2015 --group-by year --subsample-max-sequences 30  \
             --exclude-ambiguous-dates-by year \
             --probabilistic-sampling \
+            --include {input.examples} \
             --output-sequences {output.example_sequences}
         """
 

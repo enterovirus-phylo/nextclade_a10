@@ -23,7 +23,8 @@
         "kmerDistance": 25,
         "minMatchLength": 30,
         "allowedMismatches": 15,
-        "minLength": 30
+        "minLength": 100,
+        "minSeedCover": 0.30
     },
   "defaultCds": "VP1",
   "compatibility": {
@@ -37,28 +38,33 @@
   "qc": {
     "frameShifts": {
       "enabled": true,
-      "scoreWeight": 20
+      "scoreWeight": 100
     },
     "missingData": {
       "enabled": true,
-      "missingDataThreshold": 2000,
-      "scoreBias": 500
+      "missingDataThreshold": 200,
+      "scoreBias": 2400
     },
     "mixedSites": {
       "enabled": true,
       "mixedSitesThreshold": 40
     },
     "privateMutations": {
-      "cutoff": 700,
+      "cutoff": 200,
       "enabled": true,
-      "typical": 600,
-      "weightLabeledSubstitutions": 1,
+      "typical": 100,
+      "weightLabeledSubstitutions": 1.5,
       "weightReversionSubstitutions": 2,
       "weightUnlabeledSubstitutions": 1
     },
     "stopCodons": {
       "enabled": true,
       "scoreWeight": 40
+    },
+    "divergence": {
+      "enabled": true,
+      "maxDivergence": 0.15,
+      "scoreWeight": 50
     },
     "recombinants": {
       "enabled": true,
