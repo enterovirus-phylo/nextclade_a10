@@ -27,7 +27,7 @@ This dataset supports:
 
 ## Subgenogroups of Cocksackievirus A10
 
-Clade designations follow major phylogenetic divisions within CV-A10, commonly used in virological surveillance and literature. The label "G/C" indicates old, basal lineages that are no longer circulating. Sequences labeled "G/C" or "unassigned" may indicate sequencing or assembly issues and should be assessed carefully. Clades designations are defined by phylogenetic clustering and do not necessarily indicate antigenic differences.
+Clade designations follow major phylogenetic divisions within CV-A10, commonly used in virological surveillance and literature. The label "G/C" indicates sequences that could not be assigned to either C or G, but they cluster next to both clades. Clades designations are defined by phylogenetic clustering and do not necessarily indicate antigenic differences.
 
 *Note: Clades A and E have no whole genome representative sequence and have not been included in this dataset.*
 
@@ -36,7 +36,7 @@ These designations are based on the phylogenetic structure and mutations, and ar
 ## Reference types
 
 This dataset includes several reference points used in analyses:
-- *Reference:*: RefSeq or similarly established reference sequence. Here Kowalik.
+- *Reference:* RefSeq or similarly established reference sequence. Here Kowalik.
 
 - *Parent:* The nearest ancestral node of a sample in the tree, used to infer branch-specific mutations.
 

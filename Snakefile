@@ -137,7 +137,7 @@ if STATIC_ANCESTRAL_INFERRENCE == True:
 
             echo "Running inferred-root workflow..."
             cd {input.dir}
-            snakemake --cores {threads} all_sub
+            snakemake --cores {threads} all
             cd - > /dev/null
 
             echo "Combining sequences with ancestral root..."
@@ -518,8 +518,8 @@ rule subsample_example_sequences:
             --include {input.examples} \
             --exclude {input.exclude} {input.outliers} \
             --min-length 4000 \
-            --min-date 2015 --group-by clade \
-            --subsample-max-sequences 10  \
+            --min-date 2010 --group-by clade \
+            --subsample-max-sequences 20  \
             --exclude-ambiguous-dates-by year \
             --probabilistic-sampling \
             --output-sequences {output.example_sequences}

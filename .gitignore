@@ -32,4 +32,6 @@ test_out/*
 out-dataset/*
 dataset.zip
 
+metadata.tmp
+
 config.yaml
