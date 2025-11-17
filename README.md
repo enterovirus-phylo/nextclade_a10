@@ -1,6 +1,6 @@
 # Nextclade Workflow for Coxsackievirus A10
 
-This repository provides a robust, reproducible workflow for building a custom [Nextclade](https://github.com/nextstrain/nextclade) dataset for Coxsackievirus A10. It enables you to generate reference and annotation files, download and process sequence data, infer an ancestral sequence, and create all files needed for Nextclade analyses and visualization.
+This repository provides a robust, reproducible workflow for building a custom [Nextclade](https://github.com/nextstrain/nextclade) dataset for Coxsackievirus A10 (CV-A10). It enables you to generate reference and annotation files, download and process sequence data, infer an ancestral sequence, and create all files needed for Nextclade analyses and visualization.
 
 ---
 
@@ -81,13 +81,18 @@ Edit protein names and features if necessary for your use case.
 
 Sequences and metadata can be downloaded automatically via the ingest process (see below).
 
+> [!WARNING]
+> Params not included in snakefile:
+> gap_alignment_side = config["alignmentParams"]["gapAlignmentSide"],  
+> min_seed_cover = config["alignmentParams"]["minSeedCover"],
+
 ---
 
 ## Subprocesses
 
 ### Ingest
 
-Automates downloading of EV sequences and metadata from NCBI Virus.  
+Automates downloading of CV-A10 sequences and metadata from NCBI Virus.  
 See [ingest/README.md](ingest/README.md) for specifics.
 
 **Required packages:**  
@@ -153,7 +158,7 @@ https://master.clades.nextstrain.org/?dataset-url=http://localhost:3000
 ## Author & Contact
 
 - Maintainers: Alejandra González-Sánchez, Nadia Neuner-Jehle, Emma B. Hodcroft ([hodcroftlab](https://github.com/hodcroftlab))
-- For questions or suggestions, please [open an issue](https://github.com/enterovirus-phylo/dataset-template-inferred-root/issues/new) or email: eve-group[at]swisstph.ch
+- For questions or suggestions, please [open an issue](https://github.com/hodcroftlab/nextclade_a10/issues/new) or email: eve-group[at]swisstph.ch
 
 ---
 
@@ -165,4 +170,5 @@ https://master.clades.nextstrain.org/?dataset-url=http://localhost:3000
 
 ---
 
-This guide provides a structured, scalable approach to building and using high-quality Nextclade datasets for CVA10 — and can be adapted for other enterovirus types as well.
+This guide provides a structured, scalable approach to building and using high-quality Nextclade datasets for CV-A10 — and can be adapted for other enterovirus types as well.
+
