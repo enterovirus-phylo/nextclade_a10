@@ -137,7 +137,7 @@ if STATIC_ANCESTRAL_INFERRENCE == True:
 
             echo "Running inferred-root workflow..."
             cd {input.dir}
-            snakemake --cores {threads} all_sub
+            snakemake --cores {threads} all
             cd - > /dev/null
 
             echo "Combining sequences with ancestral root..."
