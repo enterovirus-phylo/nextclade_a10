@@ -12,7 +12,7 @@ OUTGROUP = ["AY421762.1", "AY421764.1", "AY421766.1"] ## CVA4, CVA6, CVA8
 EXCLUDE =               "../resources/exclude.txt"
 SEQUENCES =             "../data/sequences.fasta"
 METADATA =              "../results/metadata.tsv"
-INCLUDE =               "../results/include.txt"
+INCLUDE =               "../resources/include.txt"
 INFERRED_ANCESTOR =     "resources/inferred-root.fasta"
 
 rule all_sub:

@@ -1,6 +1,6 @@
 # Inferred Ancestral Root Sub-Workflow
 
-This sub-workflow generates a **Static Inferred Ancestor** for &lt;your virus&gt; using outgroup rooting. This ancestral sequence represents the MRCA (most recent common ancestor) of all &lt;your viral&gt; sequences and serves as a stable, biologically accurate reference for the Nextclade dataset.
+This sub-workflow generates a **Static Inferred Ancestor** for Coxsackievirus A10 using outgroup rooting. This ancestral sequence represents the MRCA (most recent common ancestor) of all CVA10 sequences and serves as a stable, biologically accurate reference for the Nextclade dataset.
 
 > [!NOTE]  
 > This README is for users who want to **regenerate** the inferred root (i.e., `INFERRENCE_RERUN = True`). For general information about how the inferred root is used in the main workflow, see the [main README](../README.md#inferred-ancestral-root-with-outgroup-rooting-recommended).
@@ -68,11 +68,11 @@ The workflow performs the following steps:
 
 ### 3. Build Tree
 - Constructs a maximum-likelihood tree with `augur tree` (IQ-TREE)
-- Tree includes both &lt;your viral&gt; sequences and outgroup species
+- Tree includes both CVA10 sequences and outgroup species
 
 ### 4. Root & Extract Ancestor
 - [`pick_ancestral_sequence.py`](../scripts/pick_ancestral_sequence.py) reroots the tree on the outgroup(s)
-- Identifies the **MRCA of the ingroup** (all &lt;viral&gt; sequences)
+- Identifies the **MRCA of the ingroup** (all CVA10 sequences)
 - Extracts the reconstructed ancestral sequence at this node
 - **Fills gaps** with nucleotides from the reference to ensure a complete genome
 
@@ -146,7 +146,7 @@ The `accession` (or `strain`) column should contain `ancestral_sequence` matchin
 **Solution:** Check that `MIN_DATE`, `MIN_LENGTH`, and `MAX_SEQS` parameters are appropriate for your dataset. Verify that `data/sequences.fasta` and `data/metadata.tsv` exist.
 
 **Problem:** MAFFT alignment fails  
-**Solution:** Ensure outgroup sequences are valid FASTA files and compatible with &lt;your virus&gt; (same genomic region). Outgroups should be closely related enteroviruses.
+**Solution:** Ensure outgroup sequences are valid FASTA files and compatible with CVA10 (same genomic region). Outgroups should be closely related enteroviruses.
 
 **Problem:** Tree rooting fails with "outgroup not found"  
 **Solution:** Verify that the outgroup accessions in the `OUTGROUP` list exactly match the FASTA headers in `resources/outgroup/*.fasta`.

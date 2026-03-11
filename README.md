@@ -126,7 +126,7 @@ See [ingest/README.md](ingest/README.md) for specifics.
 
 ### Inferred Ancestral Root with Outgroup Rooting (Recommended)
 
-The `inferred-root/` directory contains a reproducible pipeline that uses **outgroup rooting** to infer a dataset-specific ancestral sequence for &lt;your virus&gt;. This method:
+The `inferred-root/` directory contains a reproducible pipeline that uses **outgroup rooting** to infer a dataset-specific ancestral sequence for CVA10. This method:
 
 - **Builds a phylogenetic tree** including both &lt;your viral&gt; sequences (ingroup) and related enterovirus sequences (outgroup)
 - **Roots the tree on the outgroup** to establish correct evolutionary directionality
@@ -134,8 +134,8 @@ The `inferred-root/` directory contains a reproducible pipeline that uses **outg
 - **Fills gaps** with reference nucleotides to ensure a complete, biologically plausible genome
 
 This **Static Inferred Ancestor** serves as the root of your Nextclade dataset, providing:
-- More accurate mutation calls relative to a realistic &lt;your virus&gt; ancestor
-- A stable reference that better represents &lt;your viral&gt; diversity than the distant Reference sequence 
+- More accurate mutation calls relative to a realistic CVA10 ancestor
+- A stable reference that better represents CVA10 diversity than the distant Reference sequence 
 
 #### Configuration
 

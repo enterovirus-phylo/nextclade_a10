@@ -35,7 +35,7 @@ These designations are based on the phylogenetic structure and mutations, and ar
 ## Reference types
 
 This dataset includes several reference points used in analyses:
-- *Reference:*: RefSeq or similarly established reference sequence. Here Kowalik.
+- *Reference:* RefSeq or similarly established reference sequence. Here Kowalik.
 
 - *Parent:* The nearest ancestral node of a sample in the tree, used to infer branch-specific mutations.
 
