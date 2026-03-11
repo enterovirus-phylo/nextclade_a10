@@ -34,9 +34,6 @@ def aggregate_mutations(series) -> defaultdict(int):
         mutations = accumulate_mutations(mutations, row)
     return mutations
 
-def reverse_a_dict(dict_of_lists):
-
-
 def main():
     args = parse_args()
 
