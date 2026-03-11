@@ -28,7 +28,7 @@ This dataset supports:
 
 ## Subgenogroups of Coxsackievirus A10
 
-Coxsackievirus A10 is divided into subgenogroups A, B, C, D, E, F and G. The label "C/G" indicates lineages that are no classified either into C or G, but are placed in a node between those. 
+Coxsackievirus A10 is divided into subgenogroups A, B, C, D, E, F and G. The label "C/G" indicates lineages that are not classified either into C or G, but are placed in a node between those. 
 
 These designations are based on the phylogenetic structure and mutations, and are widely used in molecular epidemiology, similar to subgenotype systems for other enteroviruses. Unlike influenza (H1N1, H3N2) or SARS-CoV-2, there is no universal, standardized global lineage nomenclature for enteroviruses. Naming follows conventions from published studies and surveillance practices.
 
