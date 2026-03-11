@@ -1,4 +1,4 @@
-# Inferred Ancestral Root Sub-Workflow
+# Inferred Ancestral Sequence for Coxsackievirus A10
 
 This sub-workflow generates a **Static Inferred Ancestor** for Coxsackievirus A10 using outgroup rooting. This ancestral sequence represents the MRCA (most recent common ancestor) of all CVA10 sequences and serves as a stable, biologically accurate reference for the Nextclade dataset.
 
