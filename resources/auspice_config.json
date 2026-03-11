@@ -1,9 +1,10 @@
 {
   "title": "Coxsackievirus A10 - Nextclade dataset tree",
-  "build_url": "https://github.com/hodcroftlab/nextclade_a10",
+  "build_url": "https://github.com/enterovirus-phylo/nextclade_a10",
   "maintainers": [
-    { "name": "Alejandra González-Sánchez" },
-    { "name": "Emma Hodcroft", "url": "http://emmahodcroft.com/" }
+    { "name": "Alejandra González-Sánchez", "url": "https://www.vallhebron.com/en/professionals/alejandra-gonzalez-sanchez" },
+    { "name": "Nadia Neuner-Jehle", "url": "https://eve-lab.org/people/nadia-neuner-jehle/" },
+    { "name": "Emma B. Hodcroft", "url": "http://emmahodcroft.com/" }
   ],
   "extensions": {
     "nextclade": {
@@ -12,7 +13,7 @@
         "builtins": {
           "__root__": {
             "displayName": "Reference [AY421767.1]",
-            "description": "Coxsackievirus A10, strain Kowalik"
+            "description": "Kowalik strain"
           }
         },
         "search": [
@@ -82,6 +83,7 @@
     "color_by": "clade_membership",
     "geo_resolution": "country",
     "tip_label": "strain",
+    "branch_label": "clade",
     "map_triplicate": true
   },
   "panels": [

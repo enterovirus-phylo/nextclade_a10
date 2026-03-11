@@ -16,15 +16,16 @@
     "reference accession": "AY421767.1"
   },
   "alignmentParams": {
-        "penalityGapExtend": 3,
+        "penaltyGapExtend": 3,
         "penaltyGapOpen": 13,
         "penaltyGapOpenInFrame": 18,
         "penaltyGapOpenOutOfFrame": 23,
         "kmerLength": 6,
         "kmerDistance": 25,
         "minMatchLength": 30,
-        "allowedMismatches": 10,
+        "allowedMismatches": 15,
         "minLength": 100,
+        "gapAlignmentSide": "right",
         "minSeedCover": 0.30
     },
   "defaultCds": "VP1",
@@ -32,44 +33,35 @@
         "cli": "3.0.0-alpha.0",
         "web": "3.0.0-alpha.0"
     },
-  "mutLabels": {
-    "nucMutLabelMap": {
-      }
-    },    
   "qc": {
     "frameShifts": {
       "enabled": true,
-      "scoreWeight": 100
+      "scoreWeight": 50
     },
     "missingData": {
       "enabled": true,
-      "missingDataThreshold": 500,
+      "missingDataThreshold": 1000,
       "scoreBias": 100
     },
     "mixedSites": {
       "enabled": true,
-      "mixedSitesThreshold": 20
+      "mixedSitesThreshold": 25
     },
     "privateMutations": {
-      "cutoff": 200,
+      "cutoff": 300,
       "enabled": true,
-      "typical": 100,
+      "typical": 150,
       "weightLabeledSubstitutions": 1.5,
       "weightReversionSubstitutions": 2,
       "weightUnlabeledSubstitutions": 1
     },
-    "stopCodons": {
-      "enabled": true,
-      "scoreWeight": 40
-    },
     "divergence": {
       "enabled": true,
-      "maxDivergence": 0.15,
+      "maxDivergence": 0.25,
       "scoreWeight": 50
     },
-    "recombinants": {
+    "stopCodons": {
       "enabled": true,
-      "mutationsThreshold": 140,
       "scoreWeight": 50
     }
     },
