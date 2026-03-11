@@ -11,7 +11,7 @@
 
 ## Scope of this dataset
 
-Based on the full genome sequence, this dataset uses the **Kowalik reference sequence** ([AY421767.1](https://www.ncbi.nlm.nih.gov/nuccore/AY421767.1)), originally isolated in 1950. It provides a framework for quality control, clade assignment, and mutation calling across global CVA10 diversity.
+Based on the full genome sequence, this dataset uses the **Kowalik prototype sequence** ([AY421767.1](https://www.ncbi.nlm.nih.gov/nuccore/AY421767.1)), originally isolated in 1950. It provides a framework for quality control, clade assignment, and mutation calling across global CVA10 diversity.
 
 ***Note:** Kowalik reference sequence is substantially diverged from currently circulating strains. This is common for many enterovirus datasets, in contrast to some other virus datasets (e.g., seasonal influenza) where the reference is updated more frequently to match recent sequences.*
 

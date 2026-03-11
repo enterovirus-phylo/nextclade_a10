@@ -124,7 +124,7 @@ seqkit stats ../resources/inferred-root.fasta
 
 Open `results/nwk_tree_outgroup.png` to visually confirm:
 - Outgroup sequences are at the base of the tree
-- &lt;your viral&gt; sequences form a monophyletic clade
+- CVA10 sequences form a monophyletic clade
 - The root is positioned correctly between outgroup and ingroup
 
 ### 3. Verify Metadata Consistency
@@ -178,5 +178,5 @@ The `accession` (or `strain`) column should contain `ancestral_sequence` matchin
 
 ## Authors & Contact
 
-- Maintainers: Nadia Neuner-Jehle, Alejandra González Sánchez and Emma B. Hodcroft ([eve-lab.org](https://eve-lab.org/))
+- Maintainers: Alejandra González Sánchez, Nadia Neuner-Jehle and Emma B. Hodcroft ([eve-lab.org](https://eve-lab.org/))
 - For questions or suggestions, please [open an issue](https://github.com/enterovirus-phylo/dataset-template-inferred-root/issues)

@@ -35,11 +35,6 @@ def aggregate_mutations(series) -> defaultdict(int):
     return mutations
 
 def reverse_a_dict(dict_of_lists):
-    result = {}
-    for k, v in dict_of_lists.items():
-        for x in v:
-            result.setdefault(x, []).append(k)
-    return result
 
 
 def main():
@@ -116,7 +111,7 @@ def main():
         virus_json = {
             "schemaVersion": "1.10.0",
             "nucMutLabelMap": mut_dict,
-            "nucMutLabelMapReverse": dict(sorted(reverse_a_dict(mut_dict).items())),
+           
         }
 
         json.dump(virus_json, f_out, indent=2)

@@ -237,7 +237,7 @@ https://master.clades.nextstrain.org/?dataset-url=http://localhost:3000
 
 ## Troubleshooting and Further Help
 
-- For issues, see the [official Nextclade documentation](https://docs.nextstrain.org/projects/nextclade/en/stable/index.html#) or [open an issue](https://github.com/hodcroftlab/nextclade_a10/issues).
+- For issues, see the [official Nextclade documentation](https://docs.nextstrain.org/projects/nextclade/en/stable/index.html#) or [open an issue](https://github.com/enterovirus-phylo/nextclade_a10/issues).
 - For details on the inferred root workflow, see [`inferred-root/README.md`](inferred-root/README.md).
 
 
