@@ -1,7 +1,6 @@
 # Outliers
 PV693695
 AB119640
-MF678312
 
 # Just VP1
 PQ612457 # Outlier, G

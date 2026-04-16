@@ -7,28 +7,24 @@ B	nuc	1461	T
 B	nuc	3141	T
 B	nuc	3213	T
 B	nuc	4479	G
-C	nuc	696	C
-C	nuc	6264	A
-C	VP3	17	D
-C	VP1	21	S
+C	nuc	1374	A
+C	nuc	2079	A
+C	VP2	194	V
+C	VP1	240	E
 D	nuc	2472	C
 D	nuc	2550	C
 D	nuc	2601	C
 D	nuc	2671	T
-E	nuc	2832	C
-E	VP1	103	A
-E	VP1	142	S
-E	VP1	178	I
+E (VP1 only)	nuc	2670	A
+E (VP1 only)	nuc	2790	A
+E (VP1 only)	nuc	3003	G
+E (VP1 only)	VP1	142	S
 F	nuc	3063	A
 F	VP1	33	V
 F	VP1	78	T
 G	nuc	1086	C
 G	VP1	87	S
 G	VP1	26	I
-C/G	VP1	16	A
-C/G	2A	82	V
-C/G	nuc	3069	C
-C/G	nuc	3139	A
-H	VP1	72	K
-H	VP1	94	D
-H	VP1	149	V
+H (VP1 only)	VP1	72	K
+H (VP1 only)	VP1	94	D
+H (VP1 only)	VP1	149	V
