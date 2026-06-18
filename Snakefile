@@ -63,6 +63,14 @@ rule all:
         json = "out-dataset/pathogen.json",
         **({"root": INFERRED_ANCESTOR} if STATIC_ANCESTRAL_INFERRENCE else {})
 
+rule viz:
+    input: "results/auspice.json"
+    shell: "auspice view --datasetDir results"
+
+rule serve:
+    input: "out-dataset/pathogen.json","out-dataset/tree.json", "results/virus_properties.json"
+    params: "out-dataset"
+    shell: "serve --cors {params} -l 3000"
 
 if FETCH_SEQUENCES == True:
     rule fetch:
@@ -287,11 +295,13 @@ rule align:
         --min-seed-cover {params.min_seed_cover} \
         --min-length {params.min_length} \
         --max-alignment-attempts 5 \
-        --include-reference false \
+        --include-reference true \
         --output-tsv {output.tsv} \
         --output-translations {params.translation_template} \
         --output-fasta {output.alignment} 
         """
+        #         --penalty-mismatch 
+
 
 
 rule get_outliers:
@@ -334,7 +344,7 @@ rule exclude:
         exclude = EXCLUDE,
         outliers = rules.get_outliers.output.outliers,
         example = INCLUDE_EXAMPLES,
-        include = rules.add_reference_to_include.output, ##TODO: check if you would like to keep these sequences
+        include = rules.add_reference_to_include.output,
     params:
         strain_id_field = ID_FIELD,
     output:
@@ -354,6 +364,7 @@ rule exclude:
             --output-metadata {output.filtered_metadata} \
             --output-strains {output.strains}
         """
+
 
 rule tree:
     message:
@@ -512,34 +523,66 @@ rule export:
             --output {output.auspice}
         """
 
+rule extract_clades_tsv:
+    input:
+        json = rules.clades.output.json,
+    output:
+        tsv = "results/clades_metadata.tsv"
+    run:
+        import json
+        import csv
+
+        with open(input.json) as f:
+            data = json.load(f)
+
+        nodes = data.get("nodes", {})
+
+        with open(output.tsv, "w", newline="") as out_f:
+            writer = csv.writer(out_f, delimiter="\t")
+            writer.writerow(["accession", "clade"])
+
+            for accession, values in nodes.items():
+                clade = values.get("clade_membership", None)
+                if clade:
+                    writer.writerow([accession, clade])
+
 
 rule subsample_example_sequences:
     input:
         all_sequences = INFERRED_SEQ_PATH,
         metadata = INFERRED_META_PATH,
-        incl_examples = INCLUDE_EXAMPLES,
         exclude = EXCLUDE,
         outliers = rules.get_outliers.output.outliers,
+        incl_examples = INCLUDE_EXAMPLES,
+        clades =  rules.extract_clades_tsv.output.tsv,
         tree_strains = "results/tree_strains.txt",  # strains in the tree
     output:
         example_sequences = "results/example_sequences.fasta",
+        tmp = temp("tmp/metadata.tmp"),
     params:
         strain_id_field = ID_FIELD,
     shell:
         """
+        augur merge \
+            --metadata metadata={input.metadata} clades={input.clades} \
+            --metadata-id-columns {params.strain_id_field} \
+            --output-metadata {output.tmp}
         augur filter \
             --sequences {input.all_sequences} \
-            --metadata {input.metadata} \
+            --metadata {output.tmp} \
             --metadata-id-columns {params.strain_id_field} \
-            --min-length 4000 \
+            --min-length 3000 \
             --include {input.incl_examples} \
             --exclude {input.exclude} {input.outliers} \
             --exclude-ambiguous-dates-by year \
-            --min-date 2015 \
+            --exclude-where clade=A clade=B2 clade=D clade=E\
+            --min-date 2015 --group-by clade \
             --subsample-max-sequences 25  \
             --probabilistic-sampling \
             --output-sequences {output.example_sequences}
         """
+        # seqkit grep -v -f {input.tree_strains} {input.all_sequences} \
+        # | seqkit sample -n 100 -s 41 > {output.example_sequences}
 
 rule assemble_dataset:
     input:
@@ -570,45 +613,7 @@ rule assemble_dataset:
         cp {input.readme} {output.readme}
         cp {input.changelog} {output.changelog}
         zip -rj dataset.zip  out-dataset/*
-        """
-
-
-rule test:
-    input:
-        dataset = rules.assemble_dataset.output.dataset_zip,
-        sequences = rules.assemble_dataset.output.sequences,
-    output:
-        output = directory("test_out"),
-    shell:
-        """
-        nextclade3 run \
-            --input-dataset {input.dataset} \
-            --output-all {output.output} \
-            {input.sequences}
-        """
-
-rule extract_clades_tsv:
-    input:
-        json = rules.clades.output.json,
-    output:
-        tsv = "results/clades_metadata.tsv"
-    run:
-        import json
-        import csv
-
-        with open(input.json) as f:
-            data = json.load(f)
-
-        nodes = data.get("nodes", {})
-
-        with open(output.tsv, "w", newline="") as out_f:
-            writer = csv.writer(out_f, delimiter="\t")
-            writer.writerow(["accession", "clade"])
-
-            for accession, values in nodes.items():
-                clade = values.get("clade_membership", None)
-                if clade:
-                    writer.writerow([accession, clade])
+        """ 
 
 rule mutLabels:
     input:
@@ -618,7 +623,7 @@ rule mutLabels:
     params:
         min_proportion = 0.2,
         high_threshold_proportion = 0.60,
-        clades_high_threshold = ["A","B","C"], ##TODO: define your main clades here
+        clades_high_threshold = ["A","B","C"],
         clades_to_drop = ["unassigned"],
     output:
         clade_meta = "results/clades_mut_metadata.tsv",
@@ -642,13 +647,83 @@ rule mutLabels:
             --newly-relevant-output {output.newly_relevant}
 
         jq --slurpfile v {output.properties} \
-           '.mutLabels.nucMutLabelMap = $v[0].nucMutLabelMap |
-            .mutLabels.nucMutLabelMapReverse = $v[0].nucMutLabelMapReverse' \
+           '.mutLabels.nucMutLabelMap = $v[0].nucMutLabelMap' \
            {input.json} > {output.json}
 
         zip -rj dataset.zip  out-dataset/*
         """
 
+
+rule test:
+    input:
+        dataset = rules.assemble_dataset.output.dataset_zip,    # output dataset
+        sequences = SEQUENCES,                                  # NCBI sequences
+        ex_sequences = rules.assemble_dataset.output.sequences, # example sequences
+        metadata = "testing/nextstrain_vp1_metadata.tsv",       # metadata downloaded from Nextstrain, needed for accession id check
+        clades = rules.extract_clades_tsv.output.tsv,           # Table containing clades and accession
+        non_As = "testing/non-EV-A_sequence.fasta",             # List of some non-EV-A viruses
+        EV_As = "testing/EV_A.fasta" if os.path.exists("testing/EV_A.fasta") else [],   # or we do a Entrez with the taxonid
+        reference = REFERENCE_PATH,
+        tree = "out-dataset/tree.json"
+    output:
+        output = directory("test_out"),
+    params:
+        do_alignment = "False",                                 # set to True to test the alignment of fragments (will run mafft on the fragments and reference)
+        seed = 42,                                              # random seed number
+        species_taxid = "138948",                               # EV-A taxonid
+        seedCover = config["alignmentParams"]["minSeedCover"],  # min-seed-match
+        virus = config["attributes"]["name"],                   # virus name
+        fragment_genes = ["VP1", "3D"]                          # currently only genes supported
+    log:
+        "test_out/test.log"
+    shell:
+        """
+        mkdir -p {output.output}
+        
+        # Generate test sequences
+        python scripts/generate_test_sequences.py \
+            --sequences {input.sequences} \
+            --metadata {input.metadata} \
+            --clades {input.clades} \
+            --evA {input.EV_As} \
+            --taxid {params.species_taxid}\
+            --virus "{params.virus}"\
+            --output-fragments {output.output}/fragments.fasta \
+            --output-recombinants {output.output}/recombinants.fasta \
+            --output-evA {output.output}/EV_A_fetched.fasta \
+            --seed {params.seed}
+        
+        # Use provided EV_As if available, else use fetched
+        if [ -f "{input.EV_As}" ]; then
+            EV_A_FILE="{input.EV_As}"
+        else
+            EV_A_FILE="{output.output}/EV_A_fetched.fasta"
+        fi
+        
+        # Combine all test sequences
+        cat {input.sequences} {input.ex_sequences} \
+            {output.output}/fragments.fasta \
+            {output.output}/recombinants.fasta \
+            {input.non_As} \
+            "$EV_A_FILE" > {output.output}/all_test_sequences.fasta
+        
+        # Run Nextclade
+        time nextclade3 run \
+            --input-dataset {input.dataset} \
+            --output-all {output.output} \
+            {output.output}/all_test_sequences.fasta \
+            2>&1 | tee -a {log}
+        
+        # Parse results
+        python scripts/parse_nextclade_log.py {log} {output.output}/all_test_sequences.fasta {output.output}/nextclade.tsv {output.output} "{params.virus}" {input.tree}
+        
+        echo "Running with min-seed-cover: {params.seedCover}"
+
+        # Optional: align failed sequences with MAFFT
+        if [ "{params.do_alignment}" = "True" ]; then
+            mafft --thread 9 --addfragments {output.output}/failed_sequences.fasta {input.reference} > {output.output}/failed_sequences_aligned.fasta
+        fi
+        """
 
 rule clean:
     shell:
