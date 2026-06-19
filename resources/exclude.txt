@@ -1,10 +1,10 @@
 # any outliers? -> check your JSON tree on auspice.us
 AB119640
-MF678312
+# MF678312 --> added at include.txt as RF
 
 # Excluded in the refine step from the build
 PQ612456
 PQ612457
 MH118041
-MH118054
+# MH118054 --> added at include.txt as RF
 PV693695
