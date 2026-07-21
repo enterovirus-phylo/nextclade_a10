@@ -26,7 +26,7 @@
         "allowedMismatches": 15,
         "minLength": 100,
         "gapAlignmentSide": "right",
-        "minSeedCover": 0.60
+        "minSeedCover": 0.70
     },
   "defaultCds": "VP1",
   "compatibility": {

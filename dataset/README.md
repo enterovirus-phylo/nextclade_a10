@@ -5,7 +5,7 @@
 | authors              | [Alejandra González-Sánchez](https://www.vallhebron.com/en/professionals/alejandra-gonzalez-sanchez), [Nadia Neuner-Jehle](https://eve-lab.org/people/nadia-neuner), [Emma B. Hodcroft](https://eve-lab.org/people/emma-hodcroft/), [ENPEN](https://escv.eu/european-non-polio-enterovirus-network-enpen/)                                                 |
 | name                 | Coxsackievirus A10                                                        |
 | reference            | [AY421767.1](https://www.ncbi.nlm.nih.gov/nuccore/AY421767.1)         |
-| workflow             | https://github.com/enterovirus-phylo/nextclade_a10                          |
+| workflow             | <https://github.com/enterovirus-phylo/nextclade_a10>                          |
 | path                 | `enpen/enterovirus/cva10`                                                                 |
 | clade definitions    |  A-H                                                                  |
 
@@ -25,7 +25,6 @@ This dataset supports:
 - Phylogenetic placement
 - Sequence quality control (QC)
 
-
 ## Subgenogroups of Coxsackievirus A10
 
 Coxsackievirus A10 is divided into subgenogroups A, B, C, D, E (VP1 only), F, G and H (VP1 only).
@@ -37,6 +36,7 @@ These designations are based on the phylogenetic structure and mutations, and ar
 ## Reference types
 
 This dataset includes several reference points used in analyses:
+
 - *Reference:* RefSeq or similarly established reference sequence. Here Kowalik.
 
 - *Parent:* The nearest ancestral node of a sample in the tree, used to infer branch-specific mutations.
@@ -50,6 +50,7 @@ This dataset includes several reference points used in analyses:
 All references use the coordinate system of the Kowalik sequence.
 
 ## Issues & Contact
+
 - For questions or suggestions, please [open an issue](https://github.com/enterovirus-phylo/nextclade_a10/issues) or email: eve-group[at]swisstph.ch.
 
 ## What is a Nextclade dataset?
