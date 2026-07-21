@@ -3,6 +3,7 @@
 This repository contains a robust, reproducible workflow for building a custom [Nextclade](https://github.com/nextstrain/nextclade) dataset for Coxsackievirus A10 (CVA10). It enables you to generate reference and annotation files, download and process sequence data, infer an ancestral sequence, and create all files needed for Nextclade analyses and visualization.
 
 ---
+
 ## Quick Start
 
 ```bash
@@ -10,7 +11,7 @@ This repository contains a robust, reproducible workflow for building a custom [
 mkdir -p dataset data ingest resources results scripts
 
 # 2. Generate reference files
-python3 scripts/generate_from_genbank.py --reference "<accession>" --output-dir dataset/
+python3 scripts/generate_from_genbank.py --reference "AY421767.1" --output-dir dataset/
 
 # 3. Configure pathogen.json (edit manually)
 
@@ -63,11 +64,13 @@ python3 scripts/generate_from_genbank.py --reference "AY421767.1" --output-dir d
 ```
 
 During the script execution, follow the prompts for CDS annotation selection.
-   - `[0]`
-   - `[product]` or `[leave empty for manual choice]` to select proteins.
-   - `[2]`.
+
+- `[0]`
+- `[product]` or `[leave empty for manual choice]` to select proteins.
+- `[2]`.
 
 **Outputs:**
+
 - `dataset/reference.fasta`
 - `dataset/genome_annotation.gff3`
 
@@ -76,8 +79,10 @@ During the script execution, follow the prompts for CDS annotation selection.
 ### 2. Configure `pathogen.json`
 
 Edit `pathogen.json` to:
+
 - Reference your generated files (`reference.fasta`, `genome_annotation.gff3`)
 - Update metadata and QC settings as needed  
+
 > [!WARNING]  
 > If QC is not set, Nextclade will skip quality checks.
 
@@ -90,6 +95,7 @@ See the [Nextclade pathogen config documentation](https://docs.nextstrain.org/pr
 Copy your GenBank file to `resources/reference.gb` and edit it to ensure compatibility with the workflow.
 
 **Important requirements:**
+
 - Each coding sequence (CDS) must have either a `product` or `gene` name present
 - The annotation keys must **match exactly** between `reference.gb` and `genome_annotation.gff3`
 - Use simple, consistent names (e.g., `product="VP1"` instead of `product="VP1_protein"`)
@@ -128,18 +134,20 @@ See [ingest/README.md](ingest/README.md) for specifics.
 
 The `inferred-root/` directory contains a reproducible pipeline that uses **outgroup rooting** to infer a dataset-specific ancestral sequence for CVA10. This method:
 
-- **Builds a phylogenetic tree** including both &lt;your viral&gt; sequences (ingroup) and related enterovirus sequences (outgroup)
+- **Builds a phylogenetic tree** including both CVA10 sequences (ingroup) and related enterovirus sequences (outgroup)
 - **Roots the tree on the outgroup** to establish correct evolutionary directionality
-- **Extracts the ancestral sequence** at the MRCA of all &lt;your viral&gt; sequences
+- **Extracts the ancestral sequence** at the MRCA of all CVA10 sequences
 - **Fills gaps** with reference nucleotides to ensure a complete, biologically plausible genome
 
 This **Static Inferred Ancestor** serves as the root of your Nextclade dataset, providing:
+
 - More accurate mutation calls relative to a realistic CVA10 ancestor
-- A stable reference that better represents CVA10 diversity than the distant Reference sequence 
+- A stable reference that better represents CVA10 diversity than the distant Reference sequence
 
 #### Configuration
 
 The workflow has two key parameters in the main `Snakefile`:
+
 - `STATIC_ANCESTRAL_INFERRENCE = True` — enables using the inferred root (default: `True`)
 - `INFERRENCE_RERUN = False` — controls whether to regenerate the inferred root (default: `False`)
 
@@ -157,9 +165,11 @@ When you need to regenerate with new data or updated outgroups:
 
 1. Set `INFERRENCE_RERUN = True` in the Snakefile
 2. Run the workflow:
+
    ```bash
    snakemake --cores 9 all --config static_inference_confirmed=true
    ```
+
 3. The workflow will:
    - Clean previous results in `inferred-root/results/`
    - Run the full inference pipeline with your current sequences
@@ -171,6 +181,7 @@ When you need to regenerate with new data or updated outgroups:
 > Setting `INFERRENCE_RERUN = True` will **overwrite** your existing `resources/inferred-root.fasta` file and clear `inferred-root/results/`. Only use this when you want to regenerate the root with updated data.
 
 > [!NOTE]  
+>
 > - **First-time users:** If `resources/inferred-root.fasta` doesn't exist, you must set `INFERRENCE_RERUN = True` initially.
 > - **To disable this feature:** Set `STATIC_ANCESTRAL_INFERRENCE = False` and change `ROOTING` parameter (e.g., `ROOTING="mid_point"`).
 > - **Outgroup configuration:** Sequences are in `resources/outgroup/`; update the `OUTGROUP` list in `inferred-root/Snakefile` to modify which species are used.
@@ -190,12 +201,14 @@ snakemake --cores 9 all
 This will use the existing inferred root (see [Inferred Ancestral Root](#inferred-ancestral-root-with-outgroup-rooting-recommended) section above for regeneration instructions).
 
 The workflow will:
+
 - Build the reference tree rooted on the inferred ancestor
 - Produce the Nextclade dataset in `out-dataset/`
 - Run Nextclade on example sequences
 - Output results to `test_out/` (alignment, translations, summary TSV)
 
 **Key Snakefile parameters:**
+
 - `ROOTING = "ancestral_sequence"` — roots tree on the inferred ancestor
 - `STATIC_ANCESTRAL_INFERRENCE = True` — enables inferred root in the dataset (default)
 - `INFERRENCE_RERUN = False` — set to `True` only when regenerating the root (default: `False`)
@@ -231,6 +244,7 @@ https://master.clades.nextstrain.org/?dataset-url=http://localhost:3000
 - For questions or suggestions, please [open an issue](https://github.com/enterovirus-phylo/dataset-template-inferred-root/issues) or email: eve-group[at]swisstph.ch
 
 ---
+
 ## Citation
 
 **TODO**
@@ -239,7 +253,6 @@ https://master.clades.nextstrain.org/?dataset-url=http://localhost:3000
 
 - For issues, see the [official Nextclade documentation](https://docs.nextstrain.org/projects/nextclade/en/stable/index.html#) or [open an issue](https://github.com/enterovirus-phylo/nextclade_a10/issues).
 - For details on the inferred root workflow, see [`inferred-root/README.md`](inferred-root/README.md).
-
 
 ---
 
