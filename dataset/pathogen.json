@@ -38,6 +38,10 @@
     "nucMutLabelMap": {
     }
   },
+  "meta": {
+    "bugs": "https://github.com/enterovirus-phylo/nextclade_a10/issues",
+    "source code": "https://github.com/enterovirus-phylo/nextclade_a10"
+  },
   "qc": {
     "frameShifts": {
       "enabled": true,
