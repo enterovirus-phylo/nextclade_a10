@@ -2,30 +2,39 @@
   "title": "Coxsackievirus A10 - Nextclade dataset tree",
   "build_url": "https://github.com/enterovirus-phylo/nextclade_a10",
   "maintainers": [
-    { "name": "Alejandra González-Sánchez", "url": "https://www.vallhebron.com/en/professionals/alejandra-gonzalez-sanchez" },
-    { "name": "Nadia Neuner-Jehle", "url": "https://eve-lab.org/people/nadia-neuner-jehle/" },
-    { "name": "Emma B. Hodcroft", "url": "http://emmahodcroft.com/" }
-  ],
-  "extensions": {
+        {
+      "name": "Alejandra González-Sánchez",
+      "url": "https://www.vallhebron.com/en/professionals/alejandra-gonzalez-sanchez"
+    },
+{
+      "name": "Nadia Neuner-Jehle",
+      "url": "https://eve-lab.org/people/nadia-neuner-jehle/"
+    },
+    {
+      "name": "Emma Hodcroft",
+      "url": "https://eve-lab.org/people/emma-hodcroft/"
+    }
+  ],  
+    "extensions": {
     "nextclade": {
       "ref_nodes": {
         "default": "__root__",
         "builtins": {
           "__root__": {
-            "displayName": "Reference [AY421767.1]",
-            "description": "Kowalik strain"
+            "displayName": "Static Inferred Ancestor",
+            "description": "Precomputed ancestral sequence (static)"
           }
         },
         "search": [
           {
-            "name": "InferredAncestor",
-            "displayName": "Static Inferred Ancestor",
-            "description": "Precomputed ancestral sequence (static)",
+            "name": "Prototype",
+            "displayName": "Reference [AY421767.1]",
+            "description": "Coxsackievirus A10, strain Kowalik",
             "criteria": [
               {
                 "node": [
                   {
-                    "name": ["ancestral_sequence"]
+                    "name": ["AY421767"]
                   }
                 ]
               }

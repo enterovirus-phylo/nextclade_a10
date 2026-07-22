@@ -32,7 +32,7 @@ GFF_PATH =              "dataset/genome_annotation.gff3"    # Reference genome a
 PATHOGEN_JSON =         "dataset/pathogen.json"             # Pathogen definition file for Nextclade QC and alignment.
 README_PATH =           "dataset/README.md"                 # Dataset description and usage notes.
 CHANGELOG_PATH =        "dataset/CHANGELOG.md"              # Log of dataset releases and version history.
-REFERENCE_PATH =        "dataset/reference.fasta"           # Reference genome sequence in FASTA format.
+REFERENCE_PATH =        "resources/inferred-root.fasta"     # Reference genome sequence in FASTA format.
 
 AUSPICE_CONFIG =        "resources/auspice_config.json"     # Configuration for Auspice visualization.
 EXCLUDE =               "resources/exclude.txt"             # List of sequences to exclude from the build.
@@ -90,26 +90,20 @@ if FETCH_SEQUENCES == True:
 rule curate:
     message:
         """
-        Cleaning up metadata with augur merge & augur curate
+        Cleaning up metadata with augur curate
         """
     input:
         meta = METADATA,  # Path to input metadata file
-        strains = ACCESSION_STRAIN  # Strain - accession lookup table
     params:
         strain_id_field = ID_FIELD,
     output:
         metadata = "results/metadata.tsv",  # Final output file for publications metadata
     shell:
         """
-        augur merge --metadata metadata={input.meta} strains={input.strains}\
-            --metadata-id-columns {params.strain_id_field} \
-            --output-metadata metadata.tmp
         augur curate normalize-strings \
-            --metadata metadata.tmp \
+            --metadata {input.meta} \
             --id-column {params.strain_id_field} \
             --output-metadata {output.metadata}
-
-        rm metadata.tmp
         """
 
 rule add_reference_to_include:
@@ -124,8 +118,9 @@ rule add_reference_to_include:
         """
         cat {input} >> {output}
         echo "{REFERENCE_ACCESSION}" >> {output}
-        echo ancestral_sequence >> {output}
+        
         """
+        #echo ancestral_sequence >> {output}
 
 if STATIC_ANCESTRAL_INFERRENCE and INFERRENCE_RERUN:
     rule static_inferrence:
@@ -254,6 +249,7 @@ rule align:
     message:
         """
         Aligning sequences to {input.reference} using Nextclade3.
+        Using min-seed-cover = {params.min_seed_cover}.
         """
     input:
         sequences = rules.filter.output.filtered_sequences,
@@ -422,13 +418,13 @@ rule ancestral:
             --tree {input.tree} \
             --alignment {input.alignment} \
             --annotation {input.annotation} \
-            --root-sequence {input.annotation} \
             --genes {params.genes} \
             --translations {params.translation_template} \
             --output-node-data {output.node_data} \
             --output-translations {params.output_translation_template}\
             --output-sequences {output.ancestral_sequences}
-        """
+        """ #            --root-sequence {input.annotation} \
+
 
 rule clades:
     input:
@@ -673,7 +669,8 @@ rule test:
         species_taxid = "138948",                               # EV-A taxonid
         seedCover = config["alignmentParams"]["minSeedCover"],  # min-seed-match
         virus = config["attributes"]["name"],                   # virus name
-        fragment_genes = ["VP1", "3D"]                          # currently only genes supported
+        fragment_genes = ["VP1", "3D"],                          # currently only genes supported
+        abbrev = "CVA10",
     log:
         "test_out/test.log"
     shell:
@@ -715,7 +712,9 @@ rule test:
             2>&1 | tee -a {log}
         
         # Parse results
-        python scripts/parse_nextclade_log.py {log} {output.output}/all_test_sequences.fasta {output.output}/nextclade.tsv {output.output} "{params.virus}" {input.tree}
+        python scripts/parse_nextclade_log.py {log} {output.output}/all_test_sequences.fasta \
+            {output.output}/nextclade.tsv {output.output} "{params.virus}" {input.tree} \
+            {params.abbrev}
         
         echo "Running with min-seed-cover: {params.seedCover}"
 
