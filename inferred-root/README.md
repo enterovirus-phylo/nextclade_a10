@@ -10,6 +10,7 @@ This sub-workflow generates a **Static Inferred Ancestor** for Coxsackievirus A1
 ## When to Regenerate the Inferred Root
 
 You should regenerate the inferred root when:
+
 - **First-time setup:** `resources/inferred-root.fasta` doesn't exist yet
 - **New data:** You've added significant new sequences that may shift the root position
 - **Updated outgroups:** You've changed which enterovirus species are used as outgroups
@@ -24,7 +25,7 @@ You should regenerate the inferred root when:
 Edit the first 8 lines of [`inferred-root/Snakefile`](Snakefile) to configure:
 
 | Parameter | Default | Description |
-|-----------|---------|-------------|
+| ----------- | --------- | ------------- |
 | `REFERENCE_ACCESSION` | `&lt;accession&gt;` | GenBank accession for the reference |
 | `MIN_DATE` | `"1950-01-01"` | Earliest collection date to include |
 | `MIN_LENGTH` | `"6000"` | Minimum sequence length (bp) |
@@ -36,7 +37,7 @@ Edit the first 8 lines of [`inferred-root/Snakefile`](Snakefile) to configure:
 
 Outgroup sequences must be placed in `resources/outgroup/` as individual FASTA files, named by their accession ID:
 
-```
+```bash
 resources/outgroup/
 ├── KC631740.1.fasta
 ├── MH341887.1.fasta
@@ -44,10 +45,12 @@ resources/outgroup/
 ```
 
 **Current default outgroups:**
+
 - Other enterovirus from the same species
 - Closely related enteroviruses that root the tree
 
 To add or modify outgroups:
+
 1. Add FASTA files to `resources/outgroup/`
 2. Update the `OUTGROUP` list in `inferred-root/Snakefile`
 
@@ -58,25 +61,30 @@ To add or modify outgroups:
 The workflow performs the following steps:
 
 ### 1. Subsample & Filter
+
 - Filters sequences by date (`MIN_DATE`) and length (`MIN_LENGTH`)
 - Subsamples to `MAX_SEQS` sequences using `augur filter`
-- The rule `join_fastas` merges the filtered sequences with the outgroup sequences 
+- The rule `join_fastas` merges the filtered sequences with the outgroup sequences
 
 ### 2. Align
+
 - Aligns the combined ingroup + outgroup sequences using MAFFT
 - Produces a multiple sequence alignment for phylogenetic analysis
 
 ### 3. Build Tree
+
 - Constructs a maximum-likelihood tree with `augur tree` (IQ-TREE)
 - Tree includes both CVA10 sequences and outgroup species
 
 ### 4. Root & Extract Ancestor
+
 - [`pick_ancestral_sequence.py`](../scripts/pick_ancestral_sequence.py) reroots the tree on the outgroup(s)
 - Identifies the **MRCA of the ingroup** (all CVA10 sequences)
 - Extracts the reconstructed ancestral sequence at this node
 - **Fills gaps** with nucleotides from the reference to ensure a complete genome
 
 ### 5. Export
+
 - Saves the inferred root as `resources/inferred-root.fasta`
 - Creates a visualization of the rooted tree: `results/nwk_tree_outgroup.png`
 
@@ -123,6 +131,7 @@ seqkit stats ../resources/inferred-root.fasta
 ### 2. Inspect the Rooted Tree
 
 Open `results/nwk_tree_outgroup.png` to visually confirm:
+
 - Outgroup sequences are at the base of the tree
 - CVA10 sequences form a monophyletic clade
 - The root is positioned correctly between outgroup and ingroup
@@ -171,8 +180,8 @@ The `accession` (or `strain`) column should contain `ancestral_sequence` matchin
 
 ## Additional Resources
 
-- **Augur documentation:** https://docs.nextstrain.org/projects/augur/
-- **TreeTime documentation:** https://treetime.readthedocs.io/
+- **Augur documentation:** <https://docs.nextstrain.org/projects/augur/>
+- **TreeTime documentation:** <https://treetime.readthedocs.io/>
 
 ---
 
