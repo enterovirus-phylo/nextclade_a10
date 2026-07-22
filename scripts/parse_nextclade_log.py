@@ -42,6 +42,83 @@ def parse_nextclade_log(log_file):
     
     return failed_sequences, coverage_pcts
 
+def extract_qualifying_sequences_table(log_file):
+    """
+    Build a table of failed sequences worth reviewing manually:
+      - sequences whose name contains a pipe ('ACCESSION | Virus'): accession, virus, seed cover
+      - sequences without a pipe but with 'partial', 'inter_' or 'intra_' in the name:
+        fragment length (partial) or breakpoint + recombination partner (inter/intra)
+
+    Returns a list of dicts with keys:
+        accession, category, virus_or_partner, length_or_breakpoint, seed_cover_pct
+    """
+    warn_pattern = re.compile(r"In sequence #\d+ '([^']+)'.*?covers ([\d.]+)% of the query sequence")
+
+    rows = []
+    with open(log_file) as f:
+        for line in f:
+            if "[W]" not in line or "Unable to align" not in line:
+                continue
+            match = warn_pattern.search(line)
+            if not match:
+                continue
+            full_id, coverage = match.group(1), match.group(2)
+
+            if '|' in full_id:
+                accession, virus = (part.strip() for part in full_id.split('|', 1))
+                rows.append({
+                    'accession': accession,
+                    'category': 'named',
+                    'virus_or_partner': virus,
+                    'length_or_breakpoint': '',
+                    'seed_cover_pct': coverage,
+                })
+            elif '_partial_' in full_id:
+                accession, rest = full_id.split('_partial_', 1)
+                length = rest.split('_')[0]
+                rows.append({
+                    'accession': accession,
+                    'category': 'partial',
+                    'virus_or_partner': '',
+                    'length_or_breakpoint': f"{length} bp",
+                    'seed_cover_pct': coverage,
+                })
+            elif full_id.startswith('inter_') or full_id.startswith('intra_'):
+                tokens = full_id.split('_')
+                rec_type, p1_id, breakpoint, p2_id = tokens[0], tokens[1], tokens[3], tokens[4]
+                partner_virus = '_'.join(tokens[5:])
+                rows.append({
+                    'accession': p1_id,
+                    'category': rec_type,
+                    'virus_or_partner': f"{p2_id} ({partner_virus})" if partner_virus else p2_id,
+                    'length_or_breakpoint': f"breakpoint @ {breakpoint}",
+                    'seed_cover_pct': coverage,
+                })
+            # everything else (no pipe, no partial/inter/intra) is skipped
+
+    return rows
+
+def write_qualifying_sequences_table(rows, output_dir):
+    """
+    Write the qualifying sequences table as a Markdown file (pastable into Notion).
+    """
+    output_dir = Path(output_dir)
+    table_path = output_dir / "qualifying_sequences_table.md"
+
+    header = ["Accession", "Category", "Virus / Recombination partner", "Length / Breakpoint", "Seed cover (%)"]
+
+    with open(table_path, 'w') as f:
+        f.write("| " + " | ".join(header) + " |\n")
+        f.write("|" + "|".join(["---"] * len(header)) + "|\n")
+        for row in rows:
+            f.write(
+                f"| {row['accession']} | {row['category']} | {row['virus_or_partner']} | "
+                f"{row['length_or_breakpoint']} | {row['seed_cover_pct']} |\n"
+            )
+
+    print(f"Qualifying sequences table saved to: {table_path}\n")
+    return table_path
+
 def write_failed_sequences_fasta(failed_sequences, fasta_file, output_dir):
     """
     Write all failed sequences to a new FASTA file.
@@ -52,7 +129,7 @@ def write_failed_sequences_fasta(failed_sequences, fasta_file, output_dir):
     # Read original FASTA and extract failed sequences
     failed_records = []
     for record in SeqIO.parse(fasta_file, "fasta"):
-        if record.id in failed_sequences and "|" not in record.description and "int" not in record.id: # remove non-CVA10 sequences (otherwise alignment will not make sense)
+        if record.id in failed_sequences and "|" not in record.description and "int" not in record.id: # remove non-EV sequences (otherwise alignment will not make sense)
             failed_records.append(record)   
     
     # Write to output file
@@ -61,11 +138,11 @@ def write_failed_sequences_fasta(failed_sequences, fasta_file, output_dir):
 
 def categorize_test_sequences(failed_sequences, fasta_file, qc_status):
     """
-    Categorize sequences into: CVA10, non-EV-A, fragments, inter-recombinants, intra-recombinants.
+    Categorize sequences into: EV, non-EV-A, fragments, inter-recombinants, intra-recombinants.
     Returns failure counts and QC stats for each category.
     """
     categories = {
-        'CVA10': [],
+        short_name: [],
         'non_EV_A': [],
         'EV_A': [],
         'fragments': [],
@@ -88,13 +165,13 @@ def categorize_test_sequences(failed_sequences, fasta_file, qc_status):
             categories['intra_recombinants'].append(seq_id)
         elif '_partial_' in seq_id:  # Fragments
             categories['fragments'].append(seq_id)
-        elif 'EV-A' in description or 'CVA' in description:  # EV-A sequences (but not CVA10)
-            if virus_name not in description and 'CVA10' not in description:
+        elif 'EV-A' in description or 'CVA' in description:  # EV-A sequences (but not EV)
+            if virus_name not in description and short_name not in description:
                 categories['EV_A'].append(seq_id)
-        elif '|' in description:  # Non-CVA10 (has pipe symbol)
+        elif '|' in description:  # Non-EV (has pipe symbol)
             categories['non_EV_A'].append(seq_id)
-        else:  # CVA10
-            categories['CVA10'].append(seq_id)
+        else:  # EV
+            categories[short_name].append(seq_id)
     
     # Count failures per category
     results = {}
@@ -402,8 +479,9 @@ if __name__ == "__main__":
     fasta_file = sys.argv[2] if len(sys.argv) > 2 else "data/sequences.fasta"
     tsv_file = sys.argv[3] if len(sys.argv) > 3 else "test_out/nextclade.tsv"
     output_dir = sys.argv[4] if len(sys.argv) > 4 else "test_out"
-    virus_name = sys.argv[5] if len(sys.argv) > 5 else "CVA10"
+    virus_name = sys.argv[5] if len(sys.argv) > 5 else "Enterovirus"
     tree_file = sys.argv[6] if len(sys.argv) > 6 else "out-dataset/tree.json"
+    short_name = sys.argv[7] if len(sys.argv) > 7 else "EV"
 
     # Extract mutation statistics from tree
     typical, cutoff = extract_mutation_stats_from_tree(tree_file)
@@ -423,3 +501,6 @@ if __name__ == "__main__":
     qc_status = dict(zip(df['seqName'], df['qc.overallStatus'].fillna('failed')))
 
     summarize_results(failed_seqs, coverage_vals, total_seqs, seq_lengths, qc_status, fasta_file, output_dir)
+
+    qualifying_rows = extract_qualifying_sequences_table(log_file)
+    write_qualifying_sequences_table(qualifying_rows, output_dir)

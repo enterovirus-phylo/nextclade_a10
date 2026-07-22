@@ -61,6 +61,7 @@ rule all:
         data = "dataset.zip",
         seqs = "results/example_sequences.fasta",
         json = "out-dataset/pathogen.json",
+        file = "results/virus_properties.json",
         **({"root": INFERRED_ANCESTOR} if STATIC_ANCESTRAL_INFERRENCE else {})
 
 rule viz:
