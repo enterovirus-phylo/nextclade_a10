@@ -1,4 +1,4 @@
-LOCUS       AY421767                7409 bp ss-RNA     linear   VRL 28-MAY-2004
+LOCUS       AY421767                7409 bp    ss-RNA  linear   VRL 28-MAY-2004
 DEFINITION  Human coxsackievirus A10 strain Kowalik, complete genome.
 ACCESSION   AY421767
 VERSION     AY421767.1
@@ -7,7 +7,7 @@ SOURCE      Coxsackievirus A10 (CV-A10)
   ORGANISM  Coxsackievirus A10
             Viruses; Riboviria; Orthornavirae; Pisuviricota; Pisoniviricetes;
             Picornavirales; Picornaviridae; Ensavirinae; Enterovirus;
-            Enterovirus A.
+            Enterovirus alphacoxsackie.
 REFERENCE   1  (bases 1 to 7409)
   AUTHORS   Oberste,M.S., Penaranda,S., Maher,K. and Pallansch,M.A.
   TITLE     Complete genome sequences of all members of the species Human
@@ -27,89 +27,73 @@ FEATURES             Location/Qualifiers
                      /strain="Kowalik"
                      /isolate="CA10"
                      /db_xref="taxon:42769"
-     5'UTR           1..744
-     CDS             745..7326
-                     /codon_start=1
-                     /product="polyprotein"
-                     /translation="MGAQVSSQRSGSHETGNVATGGSTINFTNINYYKDSYAASASRQ
-                     DFTQDPKKFTQPVLDSIRELSAPLNSPSVEACGYSDRVAQLTVGNSSITTQEAANIVL
-                     AYGEWPEYCPDTDATAVDKPTRPDVSVNRFYTLDSKMWQENSTGWYWKFPDVLNKTGV
-                     FGQNAQFHYLYRSGFCLHVQCNASKFHQGALLVAVIPEFVLAGRGSNTKPNEAPHPGF
-                     NTTFPGTAGASFNDPYVLDSGVPLSQSLIYPHQWINLRTNNCATIIVPYINAVPFDSA
-                     INHSNFGLIVVPVSPLKYSSGATTAIPITVTIAPLNSEFGGLRQAVSQGLPTELRPGT
-                     NQFLTTEDDTAAPILPGFSPTPSIHIPGEVRSLLELCRVETILEVNNTTDATGLNRLL
-                     IPVSAQNKADELCAAFMVDPGRIGPWQSTLVGQICRYYTQWSGSLKVTFMFTGSFMAT
-                     GKMLIAYSPPGSAQPANRETAMLGTHVIWDFGLQSSVSLVIPWISNTHFRTAKTGGNY
-                     DYYTAGVVTLWYQTNYVVPPETPGEAYIIAMGAAQDNFTLKICKDTDEVTQQAVLQGD
-                     PVEDIIHDALSSTVRRAITSGQDVNTAAGTAPSSHRLETGRVPALQAAETGATSNATD
-                     ENMIETRCVMNRNGVLEATISHFFSRSGLVGVVNLTDGGTDTTGYAVWDIDIMGFVQL
-                     RRKCEMFTYMRFNAEFTFVTTTENGEARPFMLQYMYVPPGAPKPTGRDAFQWQTATNP
-                     SVFVKLTDPPAQVSVPFMSPASAYQWFYDGYPTFGQHPETSNTTYGQCPNNMMGTFAV
-                     RVVSRVASQLKLQTRVYMKLKHVRAWIPRPIRSQPYLLKNFPNYDSSKITYSARDRAS
-                     IKQANMGKFGQQSGAIYVGNYRVVNRHLATHNDWVNLVWEDSSRDLLVSSTTAQGCDT
-                     IARCNCQTGVYYCNSRRKHYPVSFSKPSLIFVEASEYYPARYQSHLMLAEGHSEPGDC
-                     GGILRCQHGVVGLVSTGGNGLVGFADVRDLLWLDEEAMEQGVSDYIKGLGDAFGTGFT
-                     DAVSREVEALKNHLIGSEGAVEKILKNLVKLISALVIVIRSDYDMVTLTATLALIGCH
-                     GSPWAWIKSKTASILGISMAQKQSASWLKKFNDMANAAKGLEWISNKISKFIDWLKEK
-                     IIPAAKEKVEFLNNLKQLPLLENQISNLEQSAASQEDLEAIFGNVSYLAHFCRKFQPL
-                     YATEAKRVYALEKRVNNYMQFKSKHRIEPVCLIIRGSPGTGKSLATGIIARAIADKYH
-                     SSVYSLPPDPDHFDGYKQQVVTVMDDLCQNPDGKDMSLFCQMVSTVDFIPPMASLEEK
-                     GVSFTSKFVIASTNASNIIVPTVSDSDAIRRRFYMDCDIEVTDSYKTDLGRLDAGRAA
-                     KLCSENNTANFKRCSPLVCGKAIQLKDRKSKVRYSVDTMVSELIREYNNRSAVGNTIE
-                     ALFQGPPKFRPIRISLEEKPTPDAISDLLASVDSEEVRQYCREQGWIIPETPTNVERH
-                     LNRAVLVMQSIATVVAVVSLVYVIYKLFAGFQGAYSGAPKQALKKPVLRTATVQGPSL
-                     DFALSLLRRNIRQAQTDQGHFTMLGIRDRLAILPRHSQPGKTIWIEHKLVNVLDAVEL
-                     VDEQGVNLELTLVTLDTNEKFRDITKFIPETIAGASDATLVINTEHMPSMFVPIGDVV
-                     QYGFLNLSGKPTHRTMMYNFPTKAGQCGGVVTSVGKIIGIHIGGNGRQGFCAGLKRSY
-                     FASEQGEIQWMKPNKETGRLNINGPTRTKLEPSVFHNVFEGNKEPAVLTSKDPRLEVD
-                     FEQALFSKYVGNTLHEPDEYVTQAALHYANQLKQLDINTSKMSMEEACYGTENLEAID
-                     LHTSAGYPYSALGIKKRDILDPVTRDTSKMKLYMDKYGLDLPYSTYVKDELRSLDKIK
-                     KGKSRLIEASSLNDSVYLRMTFGHLYEVFHANPGTITGSAVGCNPDVFWSKLPILLPG
-                     SLFAFDYSSYDASLSPVWFRALELVLREIGYSEEAVSLIEGINHTHHVYRNKTYCVLG
-                     GMPSGCSGTSIFNSMINNIIIRTLLIKTFKGIDLDELNMVAYGDDVLASYPFPIDCLE
-                     LARTGKEYGLTMTPADKSPCFNEVTWENATFLKRGFLPDHQFPFLIHPTMPMREIHES
-                     IRWTKDARNTQDHVRSLCLLAWHNGKEEYEKFVSTIRSVPIGKALAIPNFENLRRNWL
-                     ELF"
      CDS             745..951
+                     /ID="id-AAR38847.1:1..69"
+                     /gbkey="Prot"
                      /product="VP4"
+                     /Name="VP4"
                      /locus_tag="VP4"
-                     /note="1A"
      CDS             952..1716
+                     /ID="id-AAR38847.1:70..324"
+                     /gbkey="Prot"
                      /product="VP2"
+                     /Name="VP2"
                      /locus_tag="VP2"
-                     /note="1B"
      CDS             1717..2436
+                     /ID="id-AAR38847.1:325..564"
+                     /gbkey="Prot"
                      /product="VP3"
+                     /Name="VP3"
                      /locus_tag="VP3"
-                     /note="1C"
      CDS             2437..3330
+                     /ID="id-AAR38847.1:565..862"
+                     /gbkey="Prot"
                      /product="VP1"
+                     /Name="VP1"
                      /locus_tag="VP1"
-                     /note="1D"
      CDS             3331..3780
+                     /ID="id-AAR38847.1:863..1012"
+                     /gbkey="Prot"
                      /product="2A"
+                     /Name="2A"
                      /locus_tag="2A"
      CDS             3781..4077
+                     /ID="id-AAR38847.1:1013..1111"
+                     /gbkey="Prot"
                      /product="2B"
+                     /Name="2B"
                      /locus_tag="2B"
      CDS             4078..5064
+                     /ID="id-AAR38847.1:1112..1440"
+                     /gbkey="Prot"
                      /product="2C"
+                     /Name="2C"
                      /locus_tag="2C"
      CDS             5065..5322
+                     /ID="id-AAR38847.1:1441..1526"
+                     /gbkey="Prot"
                      /product="3A"
+                     /Name="3A"
                      /locus_tag="3A"
      CDS             5323..5388
+                     /ID="id-AAR38847.1:1527..1548"
+                     /gbkey="Prot"
                      /product="3B"
+                     /Name="3B"
                      /locus_tag="3B"
-                     /note="VPg"
      CDS             5389..5937
+                     /ID="id-AAR38847.1:1549..1731"
+                     /gbkey="Prot"
                      /product="3C"
+                     /Name="3C"
                      /locus_tag="3C"
      CDS             5938..7323
+                     /ID="id-AAR38847.1:1732..2193"
+                     /gbkey="Prot"
                      /product="3D"
+                     /Name="3D"
                      /locus_tag="3D"
-     3'UTR           7327..7409
-ORIGIN      
+ORIGIN
         1 ttaaaacagc ctgtgggttg cacccactca cagggcccac tgggcgctag cactctggta
        61 ccgtggtacc tttgtgcgcc tgttttatac ccccttcccc gtttgaacat tagaagtaac
       121 gcacctcgat cagtagcagg cgcggcgcac cagccgtgtc ttgatcaagc acttctgttt
@@ -235,4 +219,3 @@ ORIGIN
      7321 ttttaaactt acagcttaaa gctgaacccc accagaaacc tggtcgtgca aatgactggt
      7381 gggggtaaat ttgttataac cagaatagc
 //
-

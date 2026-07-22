@@ -32,7 +32,7 @@ GFF_PATH =              "dataset/genome_annotation.gff3"    # Reference genome a
 PATHOGEN_JSON =         "dataset/pathogen.json"             # Pathogen definition file for Nextclade QC and alignment.
 README_PATH =           "dataset/README.md"                 # Dataset description and usage notes.
 CHANGELOG_PATH =        "dataset/CHANGELOG.md"              # Log of dataset releases and version history.
-REFERENCE_PATH =        "resources/inferred-root.fasta"     # Reference genome sequence in FASTA format.
+REFERENCE_PATH =        "dataset/reference.fasta"           # Reference genome sequence in FASTA format.
 
 AUSPICE_CONFIG =        "resources/auspice_config.json"     # Configuration for Auspice visualization.
 EXCLUDE =               "resources/exclude.txt"             # List of sequences to exclude from the build.
@@ -144,6 +144,7 @@ if STATIC_ANCESTRAL_INFERRENCE and INFERRENCE_RERUN:
             inref = INFERRED_ANCESTOR,
             seq = INFERRED_SEQ_PATH,
             meta = INFERRED_META_PATH,
+            ref_path = REFERENCE_PATH
         threads: workflow.cores
         shell:
             r"""
@@ -165,6 +166,8 @@ if STATIC_ANCESTRAL_INFERRENCE and INFERRENCE_RERUN:
                 --metadata metadata={input.meta} ancestral={input.meta_ancestral} \
                 --metadata-id-columns {params.strain_id_field} \
                 --output-metadata {output.meta}
+
+            cp {output.inref} {output.ref_path}
 
             echo "Static ancestral inference completed successfully!"
             """
@@ -406,6 +409,7 @@ rule ancestral:
         tree=rules.refine.output.tree,
         alignment=rules.exclude.output.filtered_sequences,
         annotation=GENBANK_PATH,
+        ref = REFERENCE_PATH,
     output:
         node_data="results/muts.json",
         ancestral_sequences="results/ancestral_sequences.fasta",
@@ -422,10 +426,10 @@ rule ancestral:
             --genes {params.genes} \
             --translations {params.translation_template} \
             --output-node-data {output.node_data} \
+            --root-sequence {input.ref} \
             --output-translations {params.output_translation_template}\
             --output-sequences {output.ancestral_sequences}
-        """ #            --root-sequence {input.annotation} \
-
+        """
 
 rule clades:
     input:
