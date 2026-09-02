@@ -433,6 +433,7 @@ rule ancestral:
             --translations {params.translation_template} \
             --output-node-data {output.node_data} \
             --root-sequence {input.ref} \
+            --keep-overhangs \
             --output-translations {params.output_translation_template}\
             --output-sequences {output.ancestral_sequences}
         """
