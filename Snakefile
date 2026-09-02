@@ -13,6 +13,12 @@ MAX_SEQS =              "1000"         # TODO: set lower to subsample the tree
 ROOTING =               "ancestral_sequence"  # mid_point, outgroup, reference, ancestral sequence
 ID_FIELD=               "accession"     # either accession or strain, used for meta-id-column in augur
 
+# Test rule parameters (rule `test`) - species-specific, override per virus/species
+VIRUS_ABBREV =           "CVA10"     # short abbreviation for the target virus, used in test sequence labels/filenames
+SPECIES_TAXID =          "138948"    # NCBI taxon ID for the species the target virus belongs to (used to fetch other serotypes of the same species for recombination tests)
+RELATED_SPECIES_LABEL =  "EV-A"      # optional: label for a closely related species to flag separately in the test QC breakdown (set to "" to disable)
+RECOMBINANT_CLADES = []
+
 FETCH_SEQUENCES = True              # whether to fetch sequences from NCBI Virus via ingest workflow
 STATIC_ANCESTRAL_INFERRENCE = True  # whether to use the static inferred ancestral sequence
 INFERRENCE_RERUN = False            # whether to rerun the inference of the ancestral sequence worfkflow (inferred-root)
@@ -43,6 +49,11 @@ COLORS =                "resources/colors.tsv"              # Color assignments 
 COLORS_SCHEMES =        "resources/color_schemes.tsv"       # Preset color schemes for Auspice.
 GENBANK_PATH =          "resources/reference.gbk"           # Reference genome in GenBank format (for gene mapping)
 INFERRED_ANCESTOR =     "resources/inferred-root.fasta"     # Inferred ancestral sequence (used as alternative reference)
+
+# Testing resources
+NON_TARGET_SEQUENCES =  "testing/non-EV-A_sequence.fasta"  # sequences from other species, used as negative controls
+RELATED_SPECIES_FASTA = "testing/EV_A.fasta"                # other serotypes of the same species (skips NCBI fetch if present)
+
 # -----------------------------------------------------------------------------
 
 configfile: PATHOGEN_JSON
@@ -628,6 +639,7 @@ rule mutLabels:
         table = rules.align.output.tsv,
         clade = rules.extract_clades_tsv.output.tsv,
         json = PATHOGEN_JSON,
+        dataset = rules.assemble_dataset.output.dataset_zip,
     params:
         min_proportion = 0.2,
         high_threshold_proportion = 0.60,
@@ -667,73 +679,119 @@ rule test:
         dataset = rules.assemble_dataset.output.dataset_zip,    # output dataset
         sequences = SEQUENCES,                                  # NCBI sequences
         ex_sequences = rules.assemble_dataset.output.sequences, # example sequences
-        metadata = "testing/nextstrain_vp1_metadata.tsv",       # metadata downloaded from Nextstrain, needed for accession id check
-        clades = rules.extract_clades_tsv.output.tsv,           # Table containing clades and accession
-        non_As = "testing/non-EV-A_sequence.fasta",             # List of some non-EV-A viruses
-        EV_As = "testing/EV_A.fasta" if os.path.exists("testing/EV_A.fasta") else [],   # or we do a Entrez with the taxonid
+        nextstrain = "testing/nextstrain_vp1_metadata.tsv",     # Nextstrain VP1 assignment
+        clades = "results/clades_metadata.tsv",                 # Table containing clades and accession
+        non_targets = NON_TARGET_SEQUENCES,                      # sequences from other species (negative controls)
+        related_species = RELATED_SPECIES_FASTA if os.path.exists(RELATED_SPECIES_FASTA) else [],  # or we do a Entrez with the taxonid
         reference = REFERENCE_PATH,
-        tree = "out-dataset/tree.json"
+        tree = "out-dataset/tree.json",
+        properties = "results/virus_properties.json",
     output:
         output = directory("test_out"),
     params:
         do_alignment = "False",                                 # set to True to test the alignment of fragments (will run mafft on the fragments and reference)
         seed = 42,                                              # random seed number
-        species_taxid = "138948",                               # EV-A taxonid
+        species_taxid = SPECIES_TAXID,                          # taxid of the species the target virus belongs to
         seedCover = config["alignmentParams"]["minSeedCover"],  # min-seed-match
         virus = config["attributes"]["name"],                   # virus name
-        fragment_genes = ["VP1", "3D"],                          # currently only genes supported
-        abbrev = "CVA10",
+        abbrev = VIRUS_ABBREV,
+        related_label = RELATED_SPECIES_LABEL,                  # closely related species to flag separately (optional)
+        related_patterns = ["EV-A,CVA"],
+        fragment_genes = ["VP1", "3D"]                          # currently only genes supported
     log:
         "test_out/test.log"
     shell:
         """
         mkdir -p {output.output}
-        
+
         # Generate test sequences
         python scripts/generate_test_sequences.py \
             --sequences {input.sequences} \
-            --metadata {input.metadata} \
+            --nextstrain {input.nextstrain} \
             --clades {input.clades} \
-            --evA {input.EV_As} \
+            --ev {input.related_species} \
             --taxid {params.species_taxid}\
             --virus "{params.virus}"\
             --output-fragments {output.output}/fragments.fasta \
             --output-recombinants {output.output}/recombinants.fasta \
-            --output-evA {output.output}/EV_A_fetched.fasta \
+            --output-ev {output.output}/related_species_fetched.fasta \
             --seed {params.seed}
-        
-        # Use provided EV_As if available, else use fetched
-        if [ -f "{input.EV_As}" ]; then
-            EV_A_FILE="{input.EV_As}"
+
+        # Use provided related-species sequences if available, else use fetched
+        if [ -f "{input.related_species}" ]; then
+            RELATED_FILE="{input.related_species}"
         else
-            EV_A_FILE="{output.output}/EV_A_fetched.fasta"
+            RELATED_FILE="{output.output}/related_species_fetched.fasta"
         fi
-        
+
+        # Filter input sequences to >100 nt, then randomly subsample to 10,000
+        seqkit seq -m 101 {input.sequences} \
+            | seqkit sample -n 10000 -s {params.seed} > {output.output}/sequences_subset.fasta
+
         # Combine all test sequences
-        cat {input.sequences} {input.ex_sequences} \
+        cat {output.output}/sequences_subset.fasta \
             {output.output}/fragments.fasta \
             {output.output}/recombinants.fasta \
-            {input.non_As} \
-            "$EV_A_FILE" > {output.output}/all_test_sequences.fasta
-        
+            {input.non_targets} \
+            "$RELATED_FILE" > {output.output}/all_test_sequences.fasta
+
         # Run Nextclade
+        echo "\nRunning Nextclade3 on all test sequences..."
         time nextclade3 run \
             --input-dataset {input.dataset} \
             --output-all {output.output} \
             {output.output}/all_test_sequences.fasta \
-            2>&1 | tee -a {log}
-        
+            > {log} 2>&1
+        echo "\nNextclade3 run completed. Log written to {log}."
+
         # Parse results
-        python scripts/parse_nextclade_log.py {log} {output.output}/all_test_sequences.fasta \
-            {output.output}/nextclade.tsv {output.output} "{params.virus}" {input.tree} \
-            {params.abbrev}
-        
+        python scripts/parse_nextclade_log.py \
+            --log-file {log} \
+            --fasta-file {output.output}/all_test_sequences.fasta \
+            --tsv-file {output.output}/nextclade.tsv \
+            --output-dir {output.output} \
+            --virus-name "{params.virus}" \
+            --tree-file {input.tree} \
+            --short-name {params.abbrev} \
+            --related-label "{params.related_label}" \
+            --related-patterns "{params.related_patterns}"
+
         echo "Running with min-seed-cover: {params.seedCover}"
 
         # Optional: align failed sequences with MAFFT
         if [ "{params.do_alignment}" = "True" ]; then
             mafft --thread 9 --addfragments {output.output}/failed_sequences.fasta {input.reference} > {output.output}/failed_sequences_aligned.fasta
         fi
+        """
+
+## Test clade assignment
+rule test_clades:
+    input:
+        dataset = rules.assemble_dataset.output.dataset_zip,
+        fragments = "test_out/fragments.fasta",
+        rivm_results = "testing/rivm_results.csv",
+    output:
+        report = "test_out/clade_assignment_report.tsv",
+        summary = "test_out/clade_assignment_summary.tsv"
+    params:
+        recombinant_clades = ",".join(RECOMBINANT_CLADES)
+    log:
+        "test_out/clade_assignment.log"
+    shell:
+        """
+        mkdir -p test_out/clade_assignment_results
+
+        time nextclade3 run \
+            --input-dataset {input.dataset} \
+            --output-all test_out/clade_assignment_results \
+            {input.fragments} > {log} 2>&1
+
+        python scripts/compare_clade_assignments.py \
+            test_out/clade_assignment_results/nextclade.tsv \
+            {input.rivm_results} \
+            {output.report} \
+            "{params.recombinant_clades}" \
+            {output.summary}
         """
 
 rule clean:
