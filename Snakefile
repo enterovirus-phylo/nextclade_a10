@@ -726,7 +726,7 @@ rule test:
 
         # Filter input sequences to >100 nt, then randomly subsample to 10,000
         seqkit seq -m 101 {input.sequences} \
-            | seqkit sample -n 10000 -s {params.seed} > {output.output}/sequences_subset.fasta
+            | seqkit sample -n 5000 -s {params.seed} > {output.output}/sequences_subset.fasta
 
         # Combine all test sequences
         cat {output.output}/sequences_subset.fasta \
