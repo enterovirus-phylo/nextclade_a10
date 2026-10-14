@@ -27,7 +27,7 @@
     "minLength": 100,
     "minSeedCover": 0.84,
     "retryReverseComplement": true,
-    "gapAlignmentSide": "left"
+    "gapAlignmentSide": "right"
   },
   "defaultCds": "VP1",
   "compatibility": {
