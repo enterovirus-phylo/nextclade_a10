@@ -279,6 +279,7 @@ rule align:
         penalty_gap_open = config["alignmentParams"]["penaltyGapOpen"],
         penalty_gap_open_in_frame = config["alignmentParams"]["penaltyGapOpenInFrame"],
         penalty_gap_open_out_of_frame = config["alignmentParams"]["penaltyGapOpenOutOfFrame"],
+        penalty_gap_enter_cds = config["alignmentParams"]["penaltyGapEnterCds"],
         kmer_length = config["alignmentParams"]["kmerLength"],
         kmer_distance = config["alignmentParams"]["kmerDistance"],
         min_match_length = config["alignmentParams"]["minMatchLength"],
@@ -299,6 +300,7 @@ rule align:
         --penalty-gap-open-in-frame {params.penalty_gap_open_in_frame} \
         --penalty-gap-open-out-of-frame {params.penalty_gap_open_out_of_frame} \
         --gap-alignment-side {params.gap_alignment_side} \
+        --penalty-gap-enter-cds {params.penalty_gap_enter_cds} \
         --kmer-length {params.kmer_length} \
         --kmer-distance {params.kmer_distance} \
         --min-match-length {params.min_match_length} \
