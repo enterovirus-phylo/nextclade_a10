@@ -28,7 +28,7 @@
     "minSeedCover": 0.84,
     "retryReverseComplement": true,
     "gapAlignmentSide": "left",
-    "penaltyGapEnterCds":6
+    "penaltyGapEnterCds": 6
   },
   "defaultCds": "VP1",
   "compatibility": {
