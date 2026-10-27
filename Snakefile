@@ -6,7 +6,7 @@
 REFERENCE_ACCESSION =   "AY421767.1"   # define the reference sequence
 TAXON_ID =              42769           # define the taxon id of your virus 
 GENES =                 ["VP4", "VP2", "VP3", "VP1", "2A", "2B", "2C", "3A", "3B", "3C", "3D"] # specify the genes that will be included. The names must match the annotation & reference gene/product names
-ALLOWED_DIVERGENCE =    "1800"          # TODO: lower this threshold to exclude outliers
+ALLOWED_DIVERGENCE =    "1350"          # TODO: lower this threshold to exclude outliers
 MIN_DATE =              "1950-01-01"    # all sequences collected beforehand will be excluded
 MIN_LENGTH =            "6000"          # is 6000 bp for whole genome build on Nextstrain
 MAX_SEQS =              "1000"         # TODO: set lower to subsample the tree
@@ -300,7 +300,6 @@ rule align:
         --penalty-gap-open-in-frame {params.penalty_gap_open_in_frame} \
         --penalty-gap-open-out-of-frame {params.penalty_gap_open_out_of_frame} \
         --gap-alignment-side {params.gap_alignment_side} \
-        --penalty-gap-enter-cds {params.penalty_gap_enter_cds} \
         --kmer-length {params.kmer_length} \
         --kmer-distance {params.kmer_distance} \
         --min-match-length {params.min_match_length} \
@@ -314,7 +313,7 @@ rule align:
         --output-fasta {output.alignment} 
         """
         #         --penalty-mismatch 
-
+        # --penalty-gap-enter-cds {params.penalty_gap_enter_cds} \
 
 
 rule get_outliers:
